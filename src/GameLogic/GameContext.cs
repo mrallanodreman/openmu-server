@@ -143,6 +143,9 @@ public class GameContext : AsyncDisposable, IGameContext
     /// <inheritdoc />
     public Offline.OfflinePlayerManager OfflinePlayerManager { get; } = new();
 
+    /// <summary>Gets same-account companion sessions.</summary>
+    public Bots.CompanionManager CompanionManager { get; } = new();
+
     /// <inheritdoc/>
     public IItemPowerUpFactory ItemPowerUpFactory { get; }
 

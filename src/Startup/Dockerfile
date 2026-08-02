@@ -14,7 +14,7 @@ EXPOSE 55906
 EXPOSE 44405
 EXPOSE 55980
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
 
 COPY Directory.Packages.props .

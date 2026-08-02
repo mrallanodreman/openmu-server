@@ -88,6 +88,11 @@ public interface IGameContext
     Offline.OfflinePlayerManager OfflinePlayerManager { get; }
 
     /// <summary>
+    /// Gets same-account companion sessions.
+    /// </summary>
+    Bots.CompanionManager CompanionManager { get; }
+
+    /// <summary>
     /// Gets the players count of the game.
     /// </summary>
     int PlayerCount { get; }
