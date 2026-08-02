@@ -903,10 +903,21 @@ internal sealed class BotNavigator : AsyncDisposable
         if (!ReferenceEquals(leader.CurrentMap, map))
         {
             ExitGate? warpListGate = null;
-            if (leader.CurrentMap is { } targetMap
-                && (this.TryGetLegalWarp(targetMap.Definition, out var leaderWarp)
-                    ? (warpListGate = leaderWarp.Gate) is null
-                    : targetMap.Definition.Number != this._player.SelectedCharacter?.CharacterClass?.HomeMap?.Number))
+            var hasLegalWarp = this.TryGetLegalWarp(targetMap.Definition, out var leaderWarp);
+            if (hasLegalWarp)
+            {
+                warpListGate = leaderWarp.Gate;
+            }
+
+            // A same-account companion never abandons its human leader over map-access gates:
+            // it teleports to the leader's safezone spawn gate instead (see the follow branch
+            // below, which already walks the leader's ExitGates.SpawnGate). Real party bots
+            // keep leaving the group the legitimate way - this leniency is companion-only.
+            var canFollowToTargetMap = hasLegalWarp
+                || (targetMap.Definition.Number == this._player.SelectedCharacter?.CharacterClass?.HomeMap?.Number)
+                || (targetMap.GetSafezoneGate() is not null
+                    && BotPartyHandler.HasHumanCompanion(this._player));
+            if (!canFollowToTargetMap)
             {
                 // The leader moved to a map the bot's plain character level cannot legally enter
                 // (level gates map access, the same rule as everywhere else). Rather than trail
