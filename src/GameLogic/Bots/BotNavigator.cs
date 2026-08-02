@@ -900,82 +900,74 @@ internal sealed class BotNavigator : AsyncDisposable
     /// <returns>True, if following consumed this tick; false, if the bot is close enough and should hunt normally.</returns>
     private async ValueTask<bool> TryFollowLeaderAsync(GameMap map, Player leader, CancellationToken cancellationToken)
     {
-        if (!ReferenceEquals(leader.CurrentMap, map))
+        if (leader.CurrentMap is not { } targetMap || ReferenceEquals(targetMap, map))
         {
-            ExitGate? warpListGate = null;
-            var hasLegalWarp = this.TryGetLegalWarp(targetMap.Definition, out var leaderWarp);
-            if (hasLegalWarp)
-            {
-                warpListGate = leaderWarp.Gate;
-            }
+            return false;
+        }
 
-            // A same-account companion never abandons its human leader over map-access gates:
-            // it teleports to the leader's safezone spawn gate instead (see the follow branch
-            // below, which already walks the leader's ExitGates.SpawnGate). Real party bots
-            // keep leaving the group the legitimate way - this leniency is companion-only.
-            var canFollowToTargetMap = hasLegalWarp
-                || (targetMap.Definition.Number == this._player.SelectedCharacter?.CharacterClass?.HomeMap?.Number)
-                || (targetMap.GetSafezoneGate() is not null
-                    && BotPartyHandler.HasHumanCompanion(this._player));
-            if (!canFollowToTargetMap)
-            {
-                // The leader moved to a map the bot's plain character level cannot legally enter
-                // (level gates map access, the same rule as everywhere else). Rather than trail
-                // behind unreachable or sneak in through a back door, the bot leaves the group.
-                if (this._player.Party is { } party)
-                {
-                    this._player.Logger.LogInformation(
-                        "Bot {Character} leaves its party: it cannot legally follow '{Leader}' to map {Map}.",
-                        this._player.Name,
-                        leader.Name,
-                        targetMap.Definition.Name);
-                    await party.KickMySelfAsync(this._player).ConfigureAwait(false);
-                }
+        ExitGate? warpListGate = null;
+        var target = targetMap.Definition;
+        var hasLegalWarp = this.TryGetLegalWarp(target, out var leaderWarp);
+        if (hasLegalWarp)
+        {
+            warpListGate = leaderWarp!.Gate;
+        }
 
-                return true;
-            }
-
-            // Only follow a leader who SETTLED on the new map: a leader in transit (pulling a town
-            // scroll for shopping, passing through a gate, hopping back and forth) used to drag its
-            // whole party along on every hop - and since the followers land on the map's spawn gate
-            // rather than next to him, they were still walking over when he warped away again.
-            if (!this.HasLeaderSettled(leader))
+        // A same-account companion never abandons its human leader over map-access gates:
+        // it teleports to the leader's safezone spawn gate instead (see the follow branch
+        // below, which already walks the leader's ExitGates.SpawnGate). Real party bots
+        // keep leaving the group the legitimate way - this leniency is companion-only.
+        var canFollowToTargetMap = hasLegalWarp
+            || target.Number == this._player.SelectedCharacter?.CharacterClass?.HomeMap?.Number
+            || (target.GetSafezoneGate() is not null && BotPartyHandler.HasHumanCompanion(this._player));
+        if (!canFollowToTargetMap)
+        {
+            // The leader moved to a map the bot's plain character level cannot legally enter
+            // (level gates map access, the same rule as everywhere else). Rather than trail
+            // behind unreachable or sneak in through a back door, the bot leaves the group.
+            if (this._player.Party is { } party)
             {
-                return true;
-            }
-
-            // Prefer a spawn gate of the leader's map; maps without one (the Dungeon has no town)
-            // fall back to the warp list gate - the same spot the leader warped to. Without the
-            // fallback a follower could neither warp after its leader nor hunt (following consumed
-            // its ticks), and only the stuck watchdog kept it twitching between hunting grounds.
-            if (DateTime.UtcNow - this._lastWarpUtc >= FollowWarpCooldown
-                && leader.CurrentMap is { } leaderMap
-                && (leaderMap.Definition.ExitGates.Where(g => g.IsSpawnGate).SelectRandom() ?? warpListGate) is { } leaderGate)
-            {
-                this._lastWarpUtc = DateTime.UtcNow;
-                this._hasDestination = false;
-                this._travelPath = null;
                 this._player.Logger.LogInformation(
-                    "Bot {Character} following party leader {Leader} to map {Map}.",
+                    "Bot {Character} leaves its party: it cannot legally follow '{Leader}' to map {Map}.",
                     this._player.Name,
                     leader.Name,
-                    leaderMap.Definition.Name);
-                await this._player.WarpToAsync(leaderGate).ConfigureAwait(false);
-                await this.TryPersistCurrentMapAsync(leaderMap.Definition).ConfigureAwait(false);
+                    targetMap.Definition.Name);
+                await party.KickMySelfAsync(this._player).ConfigureAwait(false);
             }
 
             return true;
         }
 
-        if (this._player.GetDistanceTo(leader.Position) > FollowDistance)
+        // Only follow a leader who SETTLED on the new map: a leader in transit (pulling a town
+        // scroll for shopping, passing through a gate, hopping back and forth) used to drag its
+        // whole party along on every hop - and since the followers land on the map's spawn gate
+        // rather than next to him, they were still walking over when he warped away again.
+        if (!this.HasLeaderSettled(leader))
         {
-            this._destination = leader.Position;
-            this._hasDestination = true;
-            await this.TravelTowardAsync(map, leader.Position, cancellationToken).ConfigureAwait(false);
             return true;
         }
 
-        return false;
+        // Prefer a spawn gate of the leader's map; maps without one (the Dungeon has no town)
+        // fall back to the warp list gate - the same spot the leader warped to. Without the
+        // fallback a follower could neither warp after its leader nor hunt (following consumed
+        // its ticks), and only the stuck watchdog kept it twitching between hunting grounds.
+        if (DateTime.UtcNow - this._lastWarpUtc >= FollowWarpCooldown
+            && leader.CurrentMap is { } leaderMap
+            && (leaderMap.Definition.ExitGates.Where(g => g.IsSpawnGate).SelectRandom() ?? warpListGate) is { } leaderGate)
+        {
+            this._lastWarpUtc = DateTime.UtcNow;
+            this._hasDestination = false;
+            this._travelPath = null;
+            this._player.Logger.LogInformation(
+                "Bot {Character} following party leader {Leader} to map {Map}.",
+                this._player.Name,
+                leader.Name,
+                leaderMap.Definition.Name);
+            await this._player.WarpToAsync(leaderGate).ConfigureAwait(false);
+            await this.TryPersistCurrentMapAsync(leaderMap.Definition).ConfigureAwait(false);
+        }
+
+        return true;
     }
 
     /// <summary>
