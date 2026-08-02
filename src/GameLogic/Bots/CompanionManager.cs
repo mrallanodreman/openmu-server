@@ -77,6 +77,17 @@ public sealed class CompanionManager
                 return false;
             }
 
+            // The bot initialized on its saved home map, so it is not yet visible to the leader
+            // who summoned it across the account. Warp it next to the leader, onto the leader's
+            // safezone spawn gate, so it renders alongside the party right away - the regular
+            // BotNavigator follow loop only does this on its tick (and only once the leader
+            // "settled" on its map), which is too late for the companion's first appearance.
+            if (leader.CurrentMap is { } leaderMap
+                && leaderMap.SafeZoneSpawnGate is { } leaderSpawnGate)
+            {
+                await bot.WarpToAsync(leaderSpawnGate).ConfigureAwait(false);
+            }
+
             bot.Logger.LogInformation("Companion '{Companion}' summoned by '{Leader}'.", bot.Name, leader.Name);
             return true;
         }
