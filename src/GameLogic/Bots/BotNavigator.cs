@@ -130,6 +130,9 @@ internal sealed class BotNavigator : AsyncDisposable
     /// <summary>A party member keeps within this distance (tiles) of its leader; beyond it, it walks back.</summary>
     private const int FollowDistance = 8;
 
+    /// <summary>Distance (tiles) a same-account companion idles at from its human leader.</summary>
+    private const int CompanionIdleAnchorDistance = 2;
+
     /// <summary>
     /// Hunting grounds closer than this (tiles) to a recent death site are avoided after the same
     /// player killed the bot repeatedly (see <see cref="OfflinePlayer.TryGetDeathSiteToAvoid"/>),
@@ -553,15 +556,37 @@ internal sealed class BotNavigator : AsyncDisposable
             // stays visible next to its human (the cross-map case above only warps when the
             // leader left the map entirely). Without this a same-account companion spawned next
             // to the leader drifts into combat range of the nearest monster and stops following.
-            if (ReferenceEquals(leaderToFollow.CurrentMap, map)
-                && this._player.GetDistanceTo(leaderToFollow.Position) > FollowDistance)
+            if (ReferenceEquals(leaderToFollow.CurrentMap, map))
             {
-                // Companion always follows - abort any unrelated walk/pursuit first.
-                this._hasDestination = false;
-                this._travelPath = null;
-                this._hasDestination = false;
-                await this.TravelTowardAsync(map, leaderToFollow.Position, cancellationToken).ConfigureAwait(false);
-                return;
+                var distanceToLeader = this._player.GetDistanceTo(leaderToFollow.Position);
+                // Keep the companion's hunting origin glued to the leader so the movement handler's
+                // regroup never pulls it away to chase a stale spawn ground - the companion does
+                // not roam; it stays anchored to its leader.
+                this._player.HuntingOrigin = leaderToFollow.Position;
+
+                if (distanceToLeader > FollowDistance)
+                {
+                    // Too far - close the gap hard, aborting any unrelated walk/pursuit.
+                    this._hasDestination = false;
+                    this._travelPath = null;
+                    this._hasDestination = false;
+                    await this.TravelTowardAsync(map, leaderToFollow.Position, cancellationToken).ConfigureAwait(false);
+                    return;
+                }
+                else if (distanceToLeader > CompanionIdleAnchorDistance)
+                {
+                    // Idle anchor: drift back toward the 2-tile sweet spot while the leader is still
+                    // moving, but stop once close. No hunting-wander in between.
+                    _ = await this.TravelTowardAsync(map, leaderToFollow.Position, cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    // At the 2-tile sweet spot: freeze in place so the companion doesn't shuffle.
+                    // Abort any in-progress walk so idle is a rock, not a jitter.
+                    this._hasDestination = false;
+                    this._travelPath = null;
+                    await this._player.WalkToAsync(this._player.Position, new Memory<WalkingStep>(new WalkingStep[0])).AsTask().ConfigureAwait(false);
+                }
             }
         }
 
@@ -573,6 +598,15 @@ internal sealed class BotNavigator : AsyncDisposable
         // map is meaningfully better (margin + cooldown), so a bot on an adequate map stays put.
         if (leaderToFollow is null
             && await this.TryWarpToBetterMapAsync().ConfigureAwait(false))
+        {
+            return;
+        }
+
+        // A same-account companion does NOT roam by itself: it follows its human leader and only
+        // engages when the leader is fighting. Skip all independent monster-hunting logic here so
+        // the companion neither walks off hunting nor sits idle on a far spawn ground - it stays
+        // glued to the leader until combat, and only then the combat handler takes over.
+        if (leaderToFollow is not null)
         {
             return;
         }
