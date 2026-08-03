@@ -503,6 +503,19 @@ public sealed class CombatHandler
             this._currentTarget = null;
         }
 
+        // Same-account companion inherits the leader's target: when the human it follows is
+        // locked onto a monster (or rival), the companion focuses the same one instead of
+        // independently picking from the spawn area - keeping the group attacking one target.
+        if (this._currentTarget is null
+            && this._player.Party is { } party
+            && party.PartyList.OfType<Player>().FirstOrDefault(p => p is not OfflinePlayer && !p.Equals(this._player)) is { } human
+            && human.LastAttackedTarget.TryGetTarget(out var leaderTarget)
+            && leaderTarget is not null
+            && this.IsTargetStillValid(leaderTarget))
+        {
+            this._currentTarget = leaderTarget;
+        }
+
         if (this._currentTarget is null)
         {
             var targets = this.GetAttackableTargetsInHuntingRange().ToList();
