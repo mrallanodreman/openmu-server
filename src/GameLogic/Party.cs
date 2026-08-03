@@ -10,6 +10,7 @@ using MUnique.OpenMU.GameLogic.Attributes;
 using MUnique.OpenMU.GameLogic.NPC;
 using MUnique.OpenMU.GameLogic.Views;
 using MUnique.OpenMU.GameLogic.Views.Party;
+using MUnique.OpenMU.GameLogic.Views.World;
 using MUnique.OpenMU.Persistence;
 using Nito.AsyncEx;
 
@@ -96,7 +97,62 @@ public sealed class Party : AsyncDisposable
 
         await this.SendPartyListAsync().ConfigureAwait(false);
         await this.UpdateNearbyCountAsync().ConfigureAwait(false);
+        await this.BroadcastPlayerInfoAsync(newMember).ConfigureAwait(false);
         return true;
+    }
+
+    /// <summary>
+    /// Broadcasts the target info (appearance, gear, ...) of the newly joined member to
+    /// the other party members, and vice versa, so every party member - e.g. the leader
+    /// viewing a companion - has a fresh, complete representation to render a target-info
+    /// panel immediately after the party membership changes.
+    /// </summary>
+    /// <param name="newMember">The member that was just added to the party.</param>
+    private async ValueTask BroadcastPlayerInfoAsync(IPartyMember newMember)
+    {
+        // The other members learn about the newly joined member.
+        if (newMember is Player newTarget)
+        {
+            foreach (var member in this._partyMembers)
+            {
+                if (member is not Player viewer || member == newMember)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    await viewer.InvokeViewPlugInAsync<IPlayerInfoPlugIn>(
+                        p => p.ShowPlayerInfoAsync(newTarget)).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    this._logger.LogDebug(ex, "Error broadcasting player info of {New} to {Viewer}", newMember.Name, member.Name);
+                }
+            }
+        }
+
+        // The new member learns about each already present member.
+        if (newMember is Player newPlayer)
+        {
+            foreach (var member in this._partyMembers)
+            {
+                if (member is not Player existing || member == newMember)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    await newPlayer.InvokeViewPlugInAsync<IPlayerInfoPlugIn>(
+                        p => p.ShowPlayerInfoAsync(existing)).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    this._logger.LogDebug(ex, "Error broadcasting player info of {Existing} to {New}", member.Name, newMember.Name);
+                }
+            }
+        }
     }
 
     /// <summary>
