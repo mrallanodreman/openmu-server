@@ -77,13 +77,43 @@ public sealed class CompanionManager
                 return false;
             }
 
-            // The bot initialized on its saved home map; teleport it onto the leader's map right now
-            // (not at the far spawn gate of its own home map) so it renders next to the leader. The
-            // BotNavigator follow loop then closes to within FollowDistance (<=8 tiles) on its ticks.
+            // The bot initialized on its saved home map; teleport it onto the leader's map right
+            // now (so it is visible) and then re-place it exactly 2 tiles ahead of the leader.
+            // - WarpToAsync brings the bot onto the leader's map (works for offline bots: the
+            //   server-side AddPlayer broadcast is what the client actually renders, so no client
+            //   F3 handshake is needed to make the bot appear).
+            // - RespawnAtAsync on the SAME map then moves the bot to leader.Position+(2,0) and
+            //   re-adds it to the map's observer scope, placing it a hard 2 tiles from the leader.
             if (leader.CurrentMap is { } leaderMap
                 && leaderMap.SafeZoneSpawnGate is { } leaderSpawnGate)
             {
                 await bot.WarpToAsync(leaderSpawnGate).ConfigureAwait(false);
+
+                // Leader-relative spawn point, clamped to the walkable terrain of the leader's map.
+                var leaderPos = leader.Position;
+                var spawnX = (byte)Math.Clamp(leaderPos.X + 2, 0, 255);
+                var spawnY = leaderPos.Y;
+                if (!leaderMap.Terrain.WalkMap[spawnX, spawnY])
+                {
+                    // X is blocked (cliff/wall): step in Y instead, keeping the 2-tile offset.
+                    spawnX = leaderPos.X;
+                    spawnY = (byte)Math.Clamp(leaderPos.Y + 2, 0, 255);
+                }
+
+                var companionGate = new ExitGate
+                {
+                    Map = leaderMap.Definition,
+                    X1 = spawnX,
+                    X2 = spawnX,
+                    Y1 = spawnY,
+                    Y2 = spawnY,
+                    Direction = leader.Rotation,
+                    IsSpawnGate = false,
+                };
+
+                // Same map as the leader by now -> isRespawnOnSameMap=true path re-adds the bot
+                // to the leader's map observer set without a client map-load ack.
+                await bot.RespawnAtAsync(companionGate).ConfigureAwait(false);
             }
 
             bot.Logger.LogInformation("Companion '{Companion}' summoned by '{Leader}'.", bot.Name, leader.Name);
