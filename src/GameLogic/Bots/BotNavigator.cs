@@ -128,7 +128,7 @@ internal sealed class BotNavigator : AsyncDisposable
     private const int MaxPointPickAttempts = 25;
 
     /// <summary>A party member keeps within this distance (tiles) of its leader; beyond it, it walks back.</summary>
-    private const int FollowDistance = 10;
+    private const int FollowDistance = 8;
 
     /// <summary>
     /// Hunting grounds closer than this (tiles) to a recent death site are avoided after the same
@@ -546,6 +546,21 @@ internal sealed class BotNavigator : AsyncDisposable
         {
             if (await this.TryFollowLeaderAsync(map, leaderToFollow, cancellationToken).ConfigureAwait(false))
             {
+                return;
+            }
+
+            // Leader on the same map but moved away: walk towards the leader so a companion
+            // stays visible next to its human (the cross-map case above only warps when the
+            // leader left the map entirely). Without this a same-account companion spawned next
+            // to the leader drifts into combat range of the nearest monster and stops following.
+            if (ReferenceEquals(leaderToFollow.CurrentMap, map)
+                && this._player.GetDistanceTo(leaderToFollow.Position) > FollowDistance)
+            {
+                // Companion always follows - abort any unrelated walk/pursuit first.
+                this._hasDestination = false;
+                this._travelPath = null;
+                this._hasDestination = false;
+                await this.TravelTowardAsync(map, leaderToFollow.Position, cancellationToken).ConfigureAwait(false);
                 return;
             }
         }
