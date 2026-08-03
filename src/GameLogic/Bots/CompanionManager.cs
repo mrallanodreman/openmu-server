@@ -77,15 +77,36 @@ public sealed class CompanionManager
                 return false;
             }
 
-            // The bot initialized on its saved home map, so it is not yet visible to the leader
-            // who summoned it across the account. Warp it next to the leader, onto the leader's
-            // safezone spawn gate, so it renders alongside the party right away - the regular
-            // BotNavigator follow loop only does this on its tick (and only once the leader
-            // "settled" on its map), which is too late for the companion's first appearance.
+            // The bot initialized on its saved home map; respawn it 2 tiles in front of the leader
+            // (on the leader's current map, at a walkable safezone point) so it renders next to the
+            // leader right away - not at the map's far spawn gate and never on another map.
             if (leader.CurrentMap is { } leaderMap
-                && leaderMap.SafeZoneSpawnGate is { } leaderSpawnGate)
+                && leaderMap.Definition.GetSafezoneGate(leaderMap.Terrain) is { } safeZoneGate
+                && leader.SafeZoneSpawnGate is not null)
             {
-                await bot.WarpToAsync(leaderSpawnGate).ConfigureAwait(false);
+                var leaderPos = leader.Position;
+                // 2 tiles ahead of the leader along the X axis; clamp to the 0..255 walk grid.
+                var spawnX = (byte)Math.Clamp(leaderPos.X + 2, 0, 255);
+                var spawnY = leaderPos.Y;
+                if (!leaderMap.Terrain.WalkMap[spawnX, spawnY] || !leaderMap.Terrain.SafezoneMap[spawnX, spawnY])
+                {
+                    spawnX = leaderPos.X;
+                    spawnY = (byte)Math.Clamp(leaderPos.Y + 2, 0, 255);
+                }
+
+                var companionGate = new ExitGate
+                {
+                    Map = leaderMap.Definition,
+                    X1 = spawnX,
+                    X2 = spawnX,
+                    Y1 = spawnY,
+                    Y2 = spawnY,
+                    Direction = leader.Rotation,
+                    IsSpawnGate = false,
+                };
+
+                await bot.RespawnAtAsync(companionGate).ConfigureAwait(false);
+                await bot.ClientReadyAfterMapChangeAsync().ConfigureAwait(false);
             }
 
             bot.Logger.LogInformation("Companion '{Companion}' summoned by '{Leader}'.", bot.Name, leader.Name);
