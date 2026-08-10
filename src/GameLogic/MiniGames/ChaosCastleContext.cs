@@ -597,6 +597,13 @@ public sealed class ChaosCastleContext : MiniGameContext
 
         bool EvaluateTarget(Point target, ref Point resultTarget, bool setTargetAnyway)
         {
+            // Coordinates are unsigned: a step below zero wraps to a huge value
+            // instead of going negative, so it has to be rejected before indexing.
+            if (!this.Map.Terrain.IsInBounds(target))
+            {
+                return false;
+            }
+
             if (walkMap[target.X, target.Y])
             {
                 resultTarget = target;

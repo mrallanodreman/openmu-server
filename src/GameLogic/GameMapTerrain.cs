@@ -56,6 +56,19 @@ public class GameMapTerrain
     public int Size { get; private set; }
 
     /// <summary>
+    /// Determines whether the specified point lies inside the terrain grid.
+    /// </summary>
+    /// <param name="point">The point to check.</param>
+    /// <returns><c>True</c>, if the point can be used to index the terrain grids; otherwise, <c>false</c>.</returns>
+    /// <remarks>
+    /// Coordinates are unsigned, so a step below zero wraps to a very large value
+    /// instead of going negative. Callers which derive a point from a direction have
+    /// to check this before indexing <see cref="WalkMap"/>, <see cref="SafezoneMap"/>
+    /// or <see cref="AIgrid"/>.
+    /// </remarks>
+    public bool IsInBounds(Point point) => point.X < this.Size && point.Y < this.Size;
+
+    /// <summary>
     /// Gets a grid of all safezone coordinates.
     /// </summary>
     public bool[,] SafezoneMap { get; private set; } = new bool[1, 1];
