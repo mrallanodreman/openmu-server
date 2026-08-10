@@ -123,10 +123,10 @@ public abstract class ChatCommandPlugInBase<T> : IChatCommandPlugIn
         return new ExitGate
         {
             Map = mapDefinition,
-            X1 = coordinates.X,
-            X2 = coordinates.X,
-            Y1 = coordinates.Y,
-            Y2 = coordinates.Y,
+            X1 = checked((byte)coordinates.X),
+            X2 = checked((byte)coordinates.X),
+            Y1 = checked((byte)coordinates.Y),
+            Y2 = checked((byte)coordinates.Y),
         };
     }
 

@@ -14,6 +14,8 @@ using MUnique.OpenMU.GameLogic.Offline;
 /// </summary>
 public sealed class BotPlayer : OfflinePlayer
 {
+    private int _companionRevision;
+
     /// <summary>
     /// After this many AI ticks failing in a row, the bot is considered broken and gets restarted.
     /// The engine's attribute system is not thread-safe, and a lost race can corrupt a character's
@@ -36,6 +38,16 @@ public sealed class BotPlayer : OfflinePlayer
         : base(gameContext)
     {
     }
+
+    /// <summary>Gets the temporary identifier of this companion session.</summary>
+    public uint CompanionId { get; internal set; }
+
+    /// <summary>Gets the revision of the last server-confirmed companion state.</summary>
+    public uint CompanionRevision => unchecked((uint)Volatile.Read(ref this._companionRevision));
+
+    /// <summary>Advances the state revision after an accepted companion mutation.</summary>
+    internal uint AdvanceCompanionRevision()
+        => unchecked((uint)Interlocked.Increment(ref this._companionRevision));
 
     /// <inheritdoc />
     public override bool RespawnAndContinue => true;

@@ -1846,7 +1846,7 @@ internal sealed class BotNavigator : AsyncDisposable
         // area can only ever return that one tile, so every bot that picks it walks onto the very same
         // spot. Scatter around it instead - the bot still arrives within combat range of the monster.
         var isSingleSpot = (maxX - minX) < GroundScatterSpan && (maxY - minY) < GroundScatterSpan;
-        var center = new Point((byte)((minX + maxX) / 2), (byte)((minY + maxY) / 2));
+        var center = new Point((ushort)((minX + maxX) / 2), (ushort)((minY + maxY) / 2));
 
         for (var attempt = 0; attempt < MaxPointPickAttempts; attempt++)
         {
@@ -1854,7 +1854,7 @@ internal sealed class BotNavigator : AsyncDisposable
             // point itself when the surroundings offer nothing - so a spawn on a ledge stays usable.
             var candidate = isSingleSpot
                 ? map.Terrain.GetRandomCoordinate(center, HuntingRange)
-                : new Point((byte)Rand.NextInt(minX, maxX + 1), (byte)Rand.NextInt(minY, maxY + 1));
+                : new Point((ushort)Rand.NextInt(minX, maxX + 1), (ushort)Rand.NextInt(minY, maxY + 1));
             int x = candidate.X;
             int y = candidate.Y;
             if (!map.Terrain.WalkMap[x, y] || map.Terrain.SafezoneMap[x, y])
@@ -1872,7 +1872,7 @@ internal sealed class BotNavigator : AsyncDisposable
                 continue;
             }
 
-            point = new Point((byte)x, (byte)y);
+            point = new Point((ushort)x, (ushort)y);
             return true;
         }
 

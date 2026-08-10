@@ -40,9 +40,9 @@ public class TraceChatCommandPlugIn : ChatCommandPlugInBase<TraceChatCommandArgs
         {
             Map = character.CurrentMap,
             X1 = character.PositionX,
-            X2 = (byte)(character.PositionX + 2),
+            X2 = (ushort)Math.Min(player!.CurrentMap!.Terrain.Size - 1, character.PositionX + 2),
             Y1 = character.PositionY,
-            Y2 = (byte)(character.PositionY + 2),
+            Y2 = (ushort)Math.Min(player.CurrentMap.Terrain.Size - 1, character.PositionY + 2),
         };
 
         await gameMaster.WarpToAsync(characterLocation).ConfigureAwait(false);

@@ -89,10 +89,10 @@ public abstract class BaseInvasionPlugIn<TConfiguration> : PeriodicTaskBasePlugI
                 MonsterDefinition = monsterDefinition,
                 SpawnTrigger = SpawnTrigger.OnceAtEventStart,
                 Quantity = 1,
-                X1 = spawnPoint.Value.X,
-                X2 = spawnPoint.Value.X,
-                Y1 = spawnPoint.Value.Y,
-                Y2 = spawnPoint.Value.Y,
+                X1 = checked((byte)spawnPoint.Value.X),
+                X2 = checked((byte)spawnPoint.Value.X),
+                Y1 = checked((byte)spawnPoint.Value.Y),
+                Y2 = checked((byte)spawnPoint.Value.Y),
             };
 
             var intelligence = new BasicMonsterIntelligence();

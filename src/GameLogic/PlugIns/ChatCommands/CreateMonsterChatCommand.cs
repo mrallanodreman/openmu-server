@@ -43,10 +43,10 @@ internal class CreateMonsterChatCommand : ChatCommandPlugInBase<CreateMonsterCha
             MonsterDefinition = monsterDef,
             SpawnTrigger = SpawnTrigger.OnceAtEventStart,
             Quantity = 1,
-            X1 = (byte)Math.Max(gameMaster.Position.X - 3, byte.MinValue),
-            X2 = (byte)Math.Min(gameMaster.Position.X + 3, byte.MaxValue),
-            Y1 = (byte)Math.Max(gameMaster.Position.Y - 3, byte.MinValue),
-            Y2 = (byte)Math.Min(gameMaster.Position.Y + 3, byte.MaxValue),
+            X1 = (ushort)Math.Max(gameMaster.Position.X - 3, ushort.MinValue),
+            X2 = (ushort)Math.Min(gameMaster.Position.X + 3, ushort.MaxValue),
+            Y1 = (ushort)Math.Max(gameMaster.Position.Y - 3, ushort.MinValue),
+            Y2 = (ushort)Math.Min(gameMaster.Position.Y + 3, ushort.MaxValue),
         };
 
         INpcIntelligence intelligence = arguments.IsIntelligent ? new BasicMonsterIntelligence() : new NullMonsterIntelligence();

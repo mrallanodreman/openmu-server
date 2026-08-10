@@ -213,7 +213,7 @@ public class NonPlayerCharacter : AsyncDisposable, IObservable, IRotatable, ILoc
 
         var x = Rand.NextInt(minX, maxX + 1);
         var y = Rand.NextInt(minY, maxY + 1);
-        var point = new Point((byte)x, (byte)y);
+        var point = new Point((ushort)x, (ushort)y);
         if (this.IsValidSpawnPoint(point))
         {
             return point;
@@ -224,10 +224,16 @@ public class NonPlayerCharacter : AsyncDisposable, IObservable, IRotatable, ILoc
 
     private bool IsValidSpawnPoint(Point spawnPoint)
     {
+        var terrain = this.CurrentMap.Terrain;
+        if (spawnPoint.X >= terrain.Size || spawnPoint.Y >= terrain.Size)
+        {
+            return false;
+        }
+
         var isSafezoneAllowed = this.CanSpawnInSafezone;
-        var isInSafezone = this.CurrentMap.Terrain.SafezoneMap[spawnPoint.X, spawnPoint.Y];
+        var isInSafezone = terrain.SafezoneMap[spawnPoint.X, spawnPoint.Y];
         var npcCanWalk = this.Definition.ObjectKind == NpcObjectKind.Monster || this.Definition.ObjectKind == NpcObjectKind.Guard;
-        var isWalkable = this.CurrentMap.Terrain.WalkMap[spawnPoint.X, spawnPoint.Y];
+        var isWalkable = terrain.WalkMap[spawnPoint.X, spawnPoint.Y];
         return (isSafezoneAllowed || !isInSafezone) && (!npcCanWalk || isWalkable);
     }
 }
