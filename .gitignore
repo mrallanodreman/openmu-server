@@ -323,3 +323,10 @@ src/AdminPanel/wwwroot/content/js/app.js.map
 
 # AI
 .opencode/
+
+# Local workspace — nada de esto se sube
+/client/
+/builds/
+/tools/
+/OpenMU
+AGENTS.md
