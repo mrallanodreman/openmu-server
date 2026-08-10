@@ -1,0 +1,11 @@
+client
+builds
+bin
+obj
+.git
+docs
+deploy
+.vs
+.vscode
+*.md
+.env

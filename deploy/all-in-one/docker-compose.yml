@@ -3,7 +3,7 @@ services:
     image: nginx:alpine
     container_name: nginx-80
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
       - ./.htpasswd:/etc/nginx/.htpasswd
@@ -27,6 +27,7 @@ services:
     environment:
       DB_HOST: database
       ASPNETCORE_URLS: http://+:8080
+      RESOLVE_IP: loopback
     working_dir: /app/
     volumes:
       - ./.htpasswd:/etc/nginx/.htpasswd

@@ -73,6 +73,23 @@ internal class ServerInfoRequestHandler : IPacketHandler<Client>
             {
                 var span = client.Connection.Output.GetSpan(connectInfo.Length)[..connectInfo.Length];
                 connectInfo.CopyTo(span);
+
+                // A single-port protocol gateway can multiplex the initial
+                // ConnectServer connection and the later GameServer
+                // connection. In that setup the game client must reconnect to
+                // the gateway instead of the private GameServer port.
+                var publicHost = Environment.GetEnvironmentVariable("OPENMU_PUBLIC_HOST");
+                var publicPortText = Environment.GetEnvironmentVariable("OPENMU_PUBLIC_PORT");
+                if (!string.IsNullOrWhiteSpace(publicHost)
+                    && ushort.TryParse(publicPortText, out var publicPort))
+                {
+                    var publicInfo = new ConnectionInfoRef(span)
+                    {
+                        IpAddress = publicHost,
+                        Port = publicPort,
+                    };
+                }
+
                 return span.Length;
             }
 
