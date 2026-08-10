@@ -63,6 +63,94 @@ public static class ConnectionExtensions
     }
 
     /// <summary>
+    /// Sends a <see cref="CharacterInformationGlobal" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    /// <param name="mapId">The map id.</param>
+    /// <param name="currentExperience">The current experience.</param>
+    /// <param name="experienceForNextLevel">The experience for next level.</param>
+    /// <param name="levelUpPoints">The level up points.</param>
+    /// <param name="strength">The strength.</param>
+    /// <param name="agility">The agility.</param>
+    /// <param name="vitality">The vitality.</param>
+    /// <param name="energy">The energy.</param>
+    /// <param name="leadership">The leadership.</param>
+    /// <param name="currentHealth">The current health.</param>
+    /// <param name="maximumHealth">The maximum health.</param>
+    /// <param name="currentMana">The current mana.</param>
+    /// <param name="maximumMana">The maximum mana.</param>
+    /// <param name="currentShield">The current shield.</param>
+    /// <param name="maximumShield">The maximum shield.</param>
+    /// <param name="currentAbility">The current ability.</param>
+    /// <param name="maximumAbility">The maximum ability.</param>
+    /// <param name="money">The money.</param>
+    /// <param name="heroState">The hero state.</param>
+    /// <param name="status">The status.</param>
+    /// <param name="usedFruitPoints">The used fruit points.</param>
+    /// <param name="maxFruitPoints">The max fruit points.</param>
+    /// <param name="usedNegativeFruitPoints">The used negative fruit points.</param>
+    /// <param name="maxNegativeFruitPoints">The max negative fruit points.</param>
+    /// <param name="attackSpeed">The attack speed.</param>
+    /// <param name="magicSpeed">The magic speed.</param>
+    /// <param name="maximumAttackSpeed">The maximum attack speed.</param>
+    /// <param name="inventoryExtensions">The inventory extensions.</param>
+    /// <param name="resets">The resets.</param>
+    /// <remarks>
+    /// Is sent by the server when: After a character with global coordinates was selected and entered the game.
+    /// Causes reaction on client side: The character enters the global game world.
+    /// </remarks>
+    public static async ValueTask SendCharacterInformationGlobalAsync(this IConnection? connection, ushort @x, ushort @y, ushort @mapId, ulong @currentExperience, ulong @experienceForNextLevel, ushort @levelUpPoints, ushort @strength, ushort @agility, ushort @vitality, ushort @energy, ushort @leadership, uint @currentHealth, uint @maximumHealth, uint @currentMana, uint @maximumMana, uint @currentShield, uint @maximumShield, uint @currentAbility, uint @maximumAbility, uint @money, CharacterHeroState @heroState, CharacterStatus @status, ushort @usedFruitPoints, ushort @maxFruitPoints, ushort @usedNegativeFruitPoints, ushort @maxNegativeFruitPoints, ushort @attackSpeed, ushort @magicSpeed, ushort @maximumAttackSpeed, byte @inventoryExtensions, ushort @resets)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = CharacterInformationGlobalRef.Length;
+            var packet = new CharacterInformationGlobalRef(connection.Output.GetSpan(length)[..length]);
+            packet.X = @x;
+            packet.Y = @y;
+            packet.MapId = @mapId;
+            packet.CurrentExperience = @currentExperience;
+            packet.ExperienceForNextLevel = @experienceForNextLevel;
+            packet.LevelUpPoints = @levelUpPoints;
+            packet.Strength = @strength;
+            packet.Agility = @agility;
+            packet.Vitality = @vitality;
+            packet.Energy = @energy;
+            packet.Leadership = @leadership;
+            packet.CurrentHealth = @currentHealth;
+            packet.MaximumHealth = @maximumHealth;
+            packet.CurrentMana = @currentMana;
+            packet.MaximumMana = @maximumMana;
+            packet.CurrentShield = @currentShield;
+            packet.MaximumShield = @maximumShield;
+            packet.CurrentAbility = @currentAbility;
+            packet.MaximumAbility = @maximumAbility;
+            packet.Money = @money;
+            packet.HeroState = @heroState;
+            packet.Status = @status;
+            packet.UsedFruitPoints = @usedFruitPoints;
+            packet.MaxFruitPoints = @maxFruitPoints;
+            packet.UsedNegativeFruitPoints = @usedNegativeFruitPoints;
+            packet.MaxNegativeFruitPoints = @maxNegativeFruitPoints;
+            packet.AttackSpeed = @attackSpeed;
+            packet.MagicSpeed = @magicSpeed;
+            packet.MaximumAttackSpeed = @maximumAttackSpeed;
+            packet.InventoryExtensions = @inventoryExtensions;
+            packet.Resets = @resets;
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Sends a <see cref="MagicEffectStatus" /> to this connection.
     /// </summary>
     /// <param name="connection">The connection.</param>
@@ -173,6 +261,54 @@ public static class ConnectionExtensions
     }
 
     /// <summary>
+    /// Sends a <see cref="AddCharacterToScopeGlobal" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="id">The id.</param>
+    /// <param name="currentPositionX">The current position x.</param>
+    /// <param name="currentPositionY">The current position y.</param>
+    /// <param name="targetPositionX">The target position x.</param>
+    /// <param name="targetPositionY">The target position y.</param>
+    /// <param name="rotation">The rotation.</param>
+    /// <param name="heroState">The hero state.</param>
+    /// <param name="attackSpeed">The attack speed.</param>
+    /// <param name="magicSpeed">The magic speed.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="appearanceAndEffects">The appearance and effects.</param>
+    /// <remarks>
+    /// Is sent by the server when: A character entered the observed scope in the global coordinate world.
+    /// Causes reaction on client side: The client adds the character using absolute ushort coordinates.
+    /// </remarks>
+    public static async ValueTask SendAddCharacterToScopeGlobalAsync(this IConnection? connection, ushort @id, ushort @currentPositionX, ushort @currentPositionY, ushort @targetPositionX, ushort @targetPositionY, byte @rotation, CharacterHeroState @heroState, ushort @attackSpeed, ushort @magicSpeed, string @name, Memory<byte> @appearanceAndEffects)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = AddCharacterToScopeGlobalRef.GetRequiredSize(appearanceAndEffects.Length);
+            var packet = new AddCharacterToScopeGlobalRef(connection.Output.GetSpan(length)[..length]);
+            packet.Id = @id;
+            packet.CurrentPositionX = @currentPositionX;
+            packet.CurrentPositionY = @currentPositionY;
+            packet.TargetPositionX = @targetPositionX;
+            packet.TargetPositionY = @targetPositionY;
+            packet.Rotation = @rotation;
+            packet.HeroState = @heroState;
+            packet.AttackSpeed = @attackSpeed;
+            packet.MagicSpeed = @magicSpeed;
+            packet.Name = @name;
+            @appearanceAndEffects.Span.CopyTo(packet.AppearanceAndEffects);
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Sends a <see cref="ObjectGotKilled" /> to this connection.
     /// </summary>
     /// <param name="connection">The connection.</param>
@@ -262,6 +398,42 @@ public static class ConnectionExtensions
         {
             var length = AreaSkillAnimationRef.Length;
             var packet = new AreaSkillAnimationRef(connection.Output.GetSpan(length)[..length]);
+            packet.SkillId = @skillId;
+            packet.PlayerId = @playerId;
+            packet.PointX = @pointX;
+            packet.PointY = @pointY;
+            packet.Rotation = @rotation;
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sends a <see cref="AreaSkillAnimationGlobal" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="skillId">The skill id.</param>
+    /// <param name="playerId">The player id.</param>
+    /// <param name="pointX">The point x.</param>
+    /// <param name="pointY">The point y.</param>
+    /// <param name="rotation">The rotation.</param>
+    /// <remarks>
+    /// Is sent by the server when: An object performs a skill which has effect on an area in a global coordinate world.
+    /// Causes reaction on client side: The animation is shown on the user interface using ushort coordinates.
+    /// </remarks>
+    public static async ValueTask SendAreaSkillAnimationGlobalAsync(this IConnection? connection, ushort @skillId, ushort @playerId, ushort @pointX, ushort @pointY, byte @rotation)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = AreaSkillAnimationGlobalRef.Length;
+            var packet = new AreaSkillAnimationGlobalRef(connection.Output.GetSpan(length)[..length]);
             packet.SkillId = @skillId;
             packet.PlayerId = @playerId;
             packet.PointX = @pointX;
@@ -1166,6 +1338,40 @@ public static class ConnectionExtensions
     }
 
     /// <summary>
+    /// Sends a <see cref="ObjectMovedGlobal" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="headerCode">The header code.</param>
+    /// <param name="objectId">The object id.</param>
+    /// <param name="positionX">The position x.</param>
+    /// <param name="positionY">The position y.</param>
+    /// <remarks>
+    /// Is sent by the server when: An object in the global-world scope moved instantly.
+    /// Causes reaction on client side: The client updates the object position using absolute ushort coordinates.
+    /// </remarks>
+    public static async ValueTask SendObjectMovedGlobalAsync(this IConnection? connection, byte @headerCode, ushort @objectId, ushort @positionX, ushort @positionY)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = ObjectMovedGlobalRef.Length;
+            var packet = new ObjectMovedGlobalRef(connection.Output.GetSpan(length)[..length]);
+            packet.HeaderCode = @headerCode;
+            packet.ObjectId = @objectId;
+            packet.PositionX = @positionX;
+            packet.PositionY = @positionY;
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Sends a <see cref="ObjectWalked" /> to this connection.
     /// </summary>
     /// <param name="connection">The connection.</param>
@@ -1233,6 +1439,50 @@ public static class ConnectionExtensions
         {
             var length = ObjectWalkedExtendedRef.GetRequiredSize(stepData.Length);
             var packet = new ObjectWalkedExtendedRef(connection.Output.GetSpan(length)[..length]);
+            packet.HeaderCode = @headerCode;
+            packet.ObjectId = @objectId;
+            packet.SourceX = @sourceX;
+            packet.SourceY = @sourceY;
+            packet.TargetX = @targetX;
+            packet.TargetY = @targetY;
+            packet.TargetRotation = @targetRotation;
+            packet.StepCount = @stepCount;
+            @stepData.Span.CopyTo(packet.StepData);
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sends a <see cref="ObjectWalkedGlobal" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="headerCode">The header code.</param>
+    /// <param name="objectId">The object id.</param>
+    /// <param name="sourceX">The source x.</param>
+    /// <param name="sourceY">The source y.</param>
+    /// <param name="targetX">The target x.</param>
+    /// <param name="targetY">The target y.</param>
+    /// <param name="targetRotation">The target rotation.</param>
+    /// <param name="stepCount">The step count.</param>
+    /// <param name="stepData">The step data.</param>
+    /// <remarks>
+    /// Is sent by the server when: An object in the global-world scope walked to another absolute position.
+    /// Causes reaction on client side: The object is animated to walk using global coordinates.
+    /// </remarks>
+    public static async ValueTask SendObjectWalkedGlobalAsync(this IConnection? connection, byte @headerCode, ushort @objectId, ushort @sourceX, ushort @sourceY, ushort @targetX, ushort @targetY, byte @targetRotation, byte @stepCount, Memory<byte> @stepData)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = ObjectWalkedGlobalRef.GetRequiredSize(stepData.Length);
+            var packet = new ObjectWalkedGlobalRef(connection.Output.GetSpan(length)[..length]);
             packet.HeaderCode = @headerCode;
             packet.ObjectId = @objectId;
             packet.SourceX = @sourceX;
@@ -1388,6 +1638,42 @@ public static class ConnectionExtensions
     }
 
     /// <summary>
+    /// Sends a <see cref="MapChangedGlobal" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="mapNumber">The map number.</param>
+    /// <param name="positionX">The position x.</param>
+    /// <param name="positionY">The position y.</param>
+    /// <param name="rotation">The rotation.</param>
+    /// <param name="isMapChange">The is map change.</param>
+    /// <remarks>
+    /// Is sent by the server when: The map or global position changed.
+    /// Causes reaction on client side: The client changes map and position using ushort coordinates.
+    /// </remarks>
+    public static async ValueTask SendMapChangedGlobalAsync(this IConnection? connection, ushort @mapNumber, ushort @positionX, ushort @positionY, byte @rotation, bool @isMapChange = true)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = MapChangedGlobalRef.Length;
+            var packet = new MapChangedGlobalRef(connection.Output.GetSpan(length)[..length]);
+            packet.IsMapChange = @isMapChange;
+            packet.MapNumber = @mapNumber;
+            packet.PositionX = @positionX;
+            packet.PositionY = @positionY;
+            packet.Rotation = @rotation;
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Sends a <see cref="MapChanged075" /> to this connection.
     /// </summary>
     /// <param name="connection">The connection.</param>
@@ -1494,6 +1780,48 @@ public static class ConnectionExtensions
     }
 
     /// <summary>
+    /// Sends a <see cref="MoneyDroppedGlobal" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="id">The id.</param>
+    /// <param name="isFreshDrop">If this flag is set, the money is added to the map with an animation and sound. Otherwise it's just added like it was already on the ground before.</param>
+    /// <param name="positionX">The position x.</param>
+    /// <param name="positionY">The position y.</param>
+    /// <param name="amount">The amount.</param>
+    /// <param name="itemCount">The item count.</param>
+    /// <param name="moneyGroup">The money group.</param>
+    /// <param name="moneyNumber">The money number.</param>
+    /// <remarks>
+    /// Is sent by the server when: Money dropped on the ground in a global coordinate world.
+    /// Causes reaction on client side: The client adds the money to the ground using ushort coordinates.
+    /// </remarks>
+    public static async ValueTask SendMoneyDroppedGlobalAsync(this IConnection? connection, ushort @id, bool @isFreshDrop, ushort @positionX, ushort @positionY, uint @amount, byte @itemCount = 1, byte @moneyGroup = 14, byte @moneyNumber = 15)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = MoneyDroppedGlobalRef.Length;
+            var packet = new MoneyDroppedGlobalRef(connection.Output.GetSpan(length)[..length]);
+            packet.ItemCount = @itemCount;
+            packet.Id = @id;
+            packet.IsFreshDrop = @isFreshDrop;
+            packet.PositionX = @positionX;
+            packet.PositionY = @positionY;
+            packet.MoneyNumber = @moneyNumber;
+            packet.Amount = @amount;
+            packet.MoneyGroup = @moneyGroup;
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Sends a <see cref="MoneyDroppedExtended" /> to this connection.
     /// </summary>
     /// <param name="connection">The connection.</param>
@@ -1517,6 +1845,42 @@ public static class ConnectionExtensions
         {
             var length = MoneyDroppedExtendedRef.Length;
             var packet = new MoneyDroppedExtendedRef(connection.Output.GetSpan(length)[..length]);
+            packet.IsFreshDrop = @isFreshDrop;
+            packet.Id = @id;
+            packet.PositionX = @positionX;
+            packet.PositionY = @positionY;
+            packet.Amount = @amount;
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sends a <see cref="MoneyDroppedExtendedGlobal" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="isFreshDrop">If this flag is set, the money is added to the map with an animation and sound. Otherwise, it's just added like it was already on the ground before.</param>
+    /// <param name="id">The id.</param>
+    /// <param name="positionX">The position x.</param>
+    /// <param name="positionY">The position y.</param>
+    /// <param name="amount">The amount.</param>
+    /// <remarks>
+    /// Is sent by the server when: Money dropped on the ground in a global coordinate world.
+    /// Causes reaction on client side: The client adds the money to the ground using ushort coordinates.
+    /// </remarks>
+    public static async ValueTask SendMoneyDroppedExtendedGlobalAsync(this IConnection? connection, bool @isFreshDrop, ushort @id, ushort @positionX, ushort @positionY, uint @amount)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = MoneyDroppedExtendedGlobalRef.Length;
+            var packet = new MoneyDroppedExtendedGlobalRef(connection.Output.GetSpan(length)[..length]);
             packet.IsFreshDrop = @isFreshDrop;
             packet.Id = @id;
             packet.PositionX = @positionX;
@@ -2741,6 +3105,50 @@ public static class ConnectionExtensions
             packet.CurrentShield = @currentShield;
             packet.CurrentAbility = @currentAbility;
             packet.Experience = @experience;
+            packet.Money = @money;
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sends a <see cref="RespawnAfterDeathGlobal" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="positionX">The position x.</param>
+    /// <param name="positionY">The position y.</param>
+    /// <param name="mapNumber">The map number.</param>
+    /// <param name="direction">The direction.</param>
+    /// <param name="currentHealth">The current health.</param>
+    /// <param name="currentMana">The current mana.</param>
+    /// <param name="currentShield">The current shield.</param>
+    /// <param name="currentAbility">The current ability.</param>
+    /// <param name="money">The money.</param>
+    /// <remarks>
+    /// Is sent by the server when: The character respawned at a global coordinate.
+    /// Causes reaction on client side: The character respawns with the specified attributes.
+    /// </remarks>
+    public static async ValueTask SendRespawnAfterDeathGlobalAsync(this IConnection? connection, ushort @positionX, ushort @positionY, ushort @mapNumber, byte @direction, uint @currentHealth, uint @currentMana, uint @currentShield, uint @currentAbility, uint @money)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = RespawnAfterDeathGlobalRef.Length;
+            var packet = new RespawnAfterDeathGlobalRef(connection.Output.GetSpan(length)[..length]);
+            packet.PositionX = @positionX;
+            packet.PositionY = @positionY;
+            packet.MapNumber = @mapNumber;
+            packet.Direction = @direction;
+            packet.CurrentHealth = @currentHealth;
+            packet.CurrentMana = @currentMana;
+            packet.CurrentShield = @currentShield;
+            packet.CurrentAbility = @currentAbility;
             packet.Money = @money;
 
             return packet.Header.Length;
@@ -6315,6 +6723,76 @@ public static class ConnectionExtensions
             packet.Result = @result;
             packet.RegisteredCount = @registeredCount;
             packet.RemainingInventoryCount = @remainingInventoryCount;
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sends a <see cref="CompanionState" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="companionId">The companion id.</param>
+    /// <param name="revision">The revision.</param>
+    /// <param name="name">The name.</param>
+    /// <param name="class">The class.</param>
+    /// <param name="level">The level.</param>
+    /// <param name="masterLevel">The master level.</param>
+    /// <param name="availableStatPoints">The available stat points.</param>
+    /// <param name="strength">The strength.</param>
+    /// <param name="agility">The agility.</param>
+    /// <param name="vitality">The vitality.</param>
+    /// <param name="energy">The energy.</param>
+    /// <param name="helperState">The helper state.</param>
+    /// <param name="currentHealth">The current health.</param>
+    /// <param name="maximumHealth">The maximum health.</param>
+    /// <param name="currentMana">The current mana.</param>
+    /// <param name="maximumMana">The maximum mana.</param>
+    /// <param name="currentShield">The current shield.</param>
+    /// <param name="maximumShield">The maximum shield.</param>
+    /// <param name="helperConfigurationLength">The helper configuration length.</param>
+    /// <param name="helperConfiguration">The helper configuration.</param>
+    /// <param name="equipment">The equipment.</param>
+    /// <param name="inventory">The inventory.</param>
+    /// <remarks>
+    /// Is sent by the server when: While an owned temporary companion is active in the party and after a state mutation.
+    /// Causes reaction on client side: The client replaces the selected companion snapshot.
+    /// </remarks>
+    public static async ValueTask SendCompanionStateAsync(this IConnection? connection, uint @companionId, uint @revision, string @name, byte @class, ushort @level, ushort @masterLevel, uint @availableStatPoints, uint @strength, uint @agility, uint @vitality, uint @energy, byte @helperState, uint @currentHealth, uint @maximumHealth, uint @currentMana, uint @maximumMana, uint @currentShield, uint @maximumShield, ushort @helperConfigurationLength, Memory<byte> @helperConfiguration, Memory<byte> @equipment, Memory<byte> @inventory)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = CompanionStateRef.Length;
+            var packet = new CompanionStateRef(connection.Output.GetSpan(length)[..length]);
+            packet.CompanionId = @companionId;
+            packet.Revision = @revision;
+            packet.Name = @name;
+            packet.Class = @class;
+            packet.Level = @level;
+            packet.MasterLevel = @masterLevel;
+            packet.AvailableStatPoints = @availableStatPoints;
+            packet.Strength = @strength;
+            packet.Agility = @agility;
+            packet.Vitality = @vitality;
+            packet.Energy = @energy;
+            packet.HelperState = @helperState;
+            packet.CurrentHealth = @currentHealth;
+            packet.MaximumHealth = @maximumHealth;
+            packet.CurrentMana = @currentMana;
+            packet.MaximumMana = @maximumMana;
+            packet.CurrentShield = @currentShield;
+            packet.MaximumShield = @maximumShield;
+            packet.HelperConfigurationLength = @helperConfigurationLength;
+            @helperConfiguration.Span.CopyTo(packet.HelperConfiguration);
+            @equipment.Span.CopyTo(packet.Equipment);
+            @inventory.Span.CopyTo(packet.Inventory);
 
             return packet.Header.Length;
         }

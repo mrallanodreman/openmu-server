@@ -286,13 +286,13 @@ public static class ConnectionExtensions
     /// Sends a <see cref="LogOutByCheatDetection" /> to this connection.
     /// </summary>
     /// <param name="connection">The connection.</param>
-    /// <param name="param">The param.</param>
+    /// <param name="itemSlot">The item slot.</param>
     /// <param name="type">The type.</param>
     /// <remarks>
     /// Is sent by the client when: When the client wants to leave the game in various ways.
     /// Causes reaction on server side: Depending on the LogOutType, the game server does several checks and sends a response back to the client. If the request was successful, the game client either closes the game, goes back to server or character selection.
     /// </remarks>
-    public static async ValueTask SendLogOutByCheatDetectionAsync(this IConnection? connection, byte @param, byte @type = 4)
+    public static async ValueTask SendLogOutByCheatDetectionAsync(this IConnection? connection, byte @itemSlot, byte @type = 4)
     {
         if (connection is null)
         {
@@ -304,7 +304,39 @@ public static class ConnectionExtensions
             var length = LogOutByCheatDetectionRef.Length;
             var packet = new LogOutByCheatDetectionRef(connection.Output.GetSpan(length)[..length]);
             packet.Type = @type;
-            packet.Param = @param;
+            packet.ItemSlot = @itemSlot;
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sends a <see cref="DropItemRequestGlobal" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="targetX">The target x.</param>
+    /// <param name="targetY">The target y.</param>
+    /// <param name="itemSlot">The item slot.</param>
+    /// <remarks>
+    /// Is sent by the client when: A player requests to drop an item of his inventory on the ground in a global coordinate world.
+    /// Causes reaction on server side: When the specified coordinates are valid, and the item is allowed to be dropped, it will be dropped on the ground and the surrounding players are notified using ushort coordinates.
+    /// </remarks>
+    public static async ValueTask SendDropItemRequestGlobalAsync(this IConnection? connection, ushort @targetX, ushort @targetY, byte @itemSlot)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = DropItemRequestGlobalRef.Length;
+            var packet = new DropItemRequestGlobalRef(connection.Output.GetSpan(length)[..length]);
+            packet.TargetX = @targetX;
+            packet.TargetY = @targetY;
+            packet.ItemSlot = @itemSlot;
 
             return packet.Header.Length;
         }
@@ -934,6 +966,38 @@ public static class ConnectionExtensions
     }
 
     /// <summary>
+    /// Sends a <see cref="EnterGateRequestGlobal" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="gateNumber">The gate number.</param>
+    /// <param name="teleportTargetX">The teleport target x.</param>
+    /// <param name="teleportTargetY">The teleport target y.</param>
+    /// <remarks>
+    /// Is sent by the client when: In a global-world: when the player enters an area on the game map which is configured as gate at the client data files, or, in the special case of wizards, for the teleport skill (GateNumber is 0 and the target coordinates are specified).
+    /// Causes reaction on server side: If the player is allowed to enter the "gate", it's moved to the corresponding exit gate area.
+    /// </remarks>
+    public static async ValueTask SendEnterGateRequestGlobalAsync(this IConnection? connection, ushort @gateNumber, ushort @teleportTargetX, ushort @teleportTargetY)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = EnterGateRequestGlobalRef.Length;
+            var packet = new EnterGateRequestGlobalRef(connection.Output.GetSpan(length)[..length]);
+            packet.GateNumber = @gateNumber;
+            packet.TeleportTargetX = @teleportTargetX;
+            packet.TeleportTargetY = @teleportTargetY;
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Sends a <see cref="EnterGateRequest075" /> to this connection.
     /// </summary>
     /// <param name="connection">The connection.</param>
@@ -987,6 +1051,38 @@ public static class ConnectionExtensions
         {
             var length = TeleportTargetRef.Length;
             var packet = new TeleportTargetRef(connection.Output.GetSpan(length)[..length]);
+            packet.TargetId = @targetId;
+            packet.TeleportTargetX = @teleportTargetX;
+            packet.TeleportTargetY = @teleportTargetY;
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sends a <see cref="TeleportTargetGlobal" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="targetId">The target id.</param>
+    /// <param name="teleportTargetX">The teleport target x.</param>
+    /// <param name="teleportTargetY">The teleport target y.</param>
+    /// <remarks>
+    /// Is sent by the client when: A wizard uses the 'Teleport Ally' skill to teleport a party member of his view range to a nearby coordinate in a global coordinate world.
+    /// Causes reaction on server side: If the target player is in the same party and in the range, it will teleported to the specified coordinates.
+    /// </remarks>
+    public static async ValueTask SendTeleportTargetGlobalAsync(this IConnection? connection, ushort @targetId, ushort @teleportTargetX, ushort @teleportTargetY)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = TeleportTargetGlobalRef.Length;
+            var packet = new TeleportTargetGlobalRef(connection.Output.GetSpan(length)[..length]);
             packet.TargetId = @targetId;
             packet.TeleportTargetX = @teleportTargetX;
             packet.TeleportTargetY = @teleportTargetY;
@@ -2535,6 +2631,42 @@ public static class ConnectionExtensions
     }
 
     /// <summary>
+    /// Sends a <see cref="WalkRequestGlobal" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="sourceX">The source x.</param>
+    /// <param name="sourceY">The source y.</param>
+    /// <param name="stepCount">The step count.</param>
+    /// <param name="targetRotation">The target rotation.</param>
+    /// <param name="directions">The directions.</param>
+    /// <remarks>
+    /// Is sent by the client when: A global-world player wants to walk from an absolute ushort coordinate.
+    /// Causes reaction on server side: The player gets moved using global-world coordinates.
+    /// </remarks>
+    public static async ValueTask SendWalkRequestGlobalAsync(this IConnection? connection, ushort @sourceX, ushort @sourceY, byte @stepCount, byte @targetRotation, Memory<byte> @directions)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = WalkRequestGlobalRef.GetRequiredSize(directions.Length);
+            var packet = new WalkRequestGlobalRef(connection.Output.GetSpan(length)[..length]);
+            packet.SourceX = @sourceX;
+            packet.SourceY = @sourceY;
+            packet.StepCount = @stepCount;
+            packet.TargetRotation = @targetRotation;
+            @directions.Span.CopyTo(packet.Directions);
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Sends a <see cref="WalkRequest075" /> to this connection.
     /// </summary>
     /// <param name="connection">The connection.</param>
@@ -3085,6 +3217,44 @@ public static class ConnectionExtensions
         {
             var length = AreaSkillRef.Length;
             var packet = new AreaSkillRef(connection.Output.GetSpan(length)[..length]);
+            packet.SkillId = @skillId;
+            packet.TargetX = @targetX;
+            packet.TargetY = @targetY;
+            packet.Rotation = @rotation;
+            packet.ExtraTargetId = @extraTargetId;
+            packet.AnimationCounter = @animationCounter;
+
+            return packet.Header.Length;
+        }
+
+        await connection.SendAsync(WritePacket).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sends a <see cref="AreaSkillGlobal" /> to this connection.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="skillId">The skill id.</param>
+    /// <param name="targetX">The target x.</param>
+    /// <param name="targetY">The target y.</param>
+    /// <param name="rotation">The rotation.</param>
+    /// <param name="extraTargetId">The extra target id.</param>
+    /// <param name="animationCounter">Animation counter which acts as a reference to the previously sent Area Skill Animation packet.</param>
+    /// <remarks>
+    /// Is sent by the client when: A player is performing a skill which affects an area of the map in a global coordinate world.
+    /// Causes reaction on server side: It's forwarded to all surrounding players, so that the animation is visible. In the original server implementation, no damage is done yet for attack skills - there are separate hit packets.
+    /// </remarks>
+    public static async ValueTask SendAreaSkillGlobalAsync(this IConnection? connection, ushort @skillId, ushort @targetX, ushort @targetY, byte @rotation, ushort @extraTargetId, byte @animationCounter)
+    {
+        if (connection is null)
+        {
+            return;
+        }
+
+        int WritePacket()
+        {
+            var length = AreaSkillGlobalRef.Length;
+            var packet = new AreaSkillGlobalRef(connection.Output.GetSpan(length)[..length]);
             packet.SkillId = @skillId;
             packet.TargetX = @targetX;
             packet.TargetY = @targetY;

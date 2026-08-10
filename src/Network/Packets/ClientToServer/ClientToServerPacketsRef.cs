@@ -891,9 +891,9 @@ public readonly ref struct LogOutByCheatDetectionRef
     }
 
     /// <summary>
-    /// Gets or sets the param.
+    /// Gets or sets the item slot.
     /// </summary>
-    public byte Param
+    public byte ItemSlot
     {
         get => this._data[5];
         set => this._data[5] = value;
@@ -912,6 +912,103 @@ public readonly ref struct LogOutByCheatDetectionRef
     /// <param name="packet">The packet as struct.</param>
     /// <returns>The packet as byte span.</returns>
     public static implicit operator Span<byte>(LogOutByCheatDetectionRef packet) => packet._data; 
+}
+
+
+/// <summary>
+/// Is sent by the client when: A player requests to drop an item of his inventory on the ground in a global coordinate world.
+/// Causes reaction on server side: When the specified coordinates are valid, and the item is allowed to be dropped, it will be dropped on the ground and the surrounding players are notified using ushort coordinates.
+/// </summary>
+public readonly ref struct DropItemRequestGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DropItemRequestGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public DropItemRequestGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DropItemRequestGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private DropItemRequestGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (byte)Math.Min(data.Length, Length);
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC3;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0xCF;
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 8;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C3HeaderRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the target x.
+    /// </summary>
+    public ushort TargetX
+    {
+        get => ReadUInt16BigEndian(this._data[3..]);
+        set => WriteUInt16BigEndian(this._data[3..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the target y.
+    /// </summary>
+    public ushort TargetY
+    {
+        get => ReadUInt16BigEndian(this._data[5..]);
+        set => WriteUInt16BigEndian(this._data[5..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the item slot.
+    /// </summary>
+    public byte ItemSlot
+    {
+        get => this._data[7];
+        set => this._data[7] = value;
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="DropItemRequestGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator DropItemRequestGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="DropItemRequestGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(DropItemRequestGlobalRef packet) => packet._data; 
 }
 
 
@@ -2792,6 +2889,103 @@ public readonly ref struct EnterGateRequestRef
 
 
 /// <summary>
+/// Is sent by the client when: In a global-world: when the player enters an area on the game map which is configured as gate at the client data files, or, in the special case of wizards, for the teleport skill (GateNumber is 0 and the target coordinates are specified).
+/// Causes reaction on server side: If the player is allowed to enter the "gate", it's moved to the corresponding exit gate area.
+/// </summary>
+public readonly ref struct EnterGateRequestGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EnterGateRequestGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public EnterGateRequestGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EnterGateRequestGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private EnterGateRequestGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (byte)Math.Min(data.Length, Length);
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC3;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0xCD;
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 10;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C3HeaderRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the gate number.
+    /// </summary>
+    public ushort GateNumber
+    {
+        get => ReadUInt16LittleEndian(this._data[4..]);
+        set => WriteUInt16LittleEndian(this._data[4..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the teleport target x.
+    /// </summary>
+    public ushort TeleportTargetX
+    {
+        get => ReadUInt16BigEndian(this._data[6..]);
+        set => WriteUInt16BigEndian(this._data[6..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the teleport target y.
+    /// </summary>
+    public ushort TeleportTargetY
+    {
+        get => ReadUInt16BigEndian(this._data[8..]);
+        set => WriteUInt16BigEndian(this._data[8..], value);
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="EnterGateRequestGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator EnterGateRequestGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="EnterGateRequestGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(EnterGateRequestGlobalRef packet) => packet._data; 
+}
+
+
+/// <summary>
 /// Is sent by the client when: Usually: When the player enters an area on the game map which is configured as gate at the client data files. In the special case of wizards, this packet is also used for the teleport skill. When this is the case, GateNumber is 0 and the target coordinates are specified.
 /// Causes reaction on server side: If the player is allowed to enter the "gate", it's moved to the corresponding exit gate area.
 /// </summary>
@@ -2982,6 +3176,103 @@ public readonly ref struct TeleportTargetRef
     /// <param name="packet">The packet as struct.</param>
     /// <returns>The packet as byte span.</returns>
     public static implicit operator Span<byte>(TeleportTargetRef packet) => packet._data; 
+}
+
+
+/// <summary>
+/// Is sent by the client when: A wizard uses the 'Teleport Ally' skill to teleport a party member of his view range to a nearby coordinate in a global coordinate world.
+/// Causes reaction on server side: If the target player is in the same party and in the range, it will teleported to the specified coordinates.
+/// </summary>
+public readonly ref struct TeleportTargetGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TeleportTargetGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public TeleportTargetGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TeleportTargetGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private TeleportTargetGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (byte)Math.Min(data.Length, Length);
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC3;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0xCC;
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 9;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C3HeaderRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the target id.
+    /// </summary>
+    public ushort TargetId
+    {
+        get => ReadUInt16LittleEndian(this._data[3..]);
+        set => WriteUInt16LittleEndian(this._data[3..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the teleport target x.
+    /// </summary>
+    public ushort TeleportTargetX
+    {
+        get => ReadUInt16BigEndian(this._data[5..]);
+        set => WriteUInt16BigEndian(this._data[5..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the teleport target y.
+    /// </summary>
+    public ushort TeleportTargetY
+    {
+        get => ReadUInt16BigEndian(this._data[7..]);
+        set => WriteUInt16BigEndian(this._data[7..], value);
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="TeleportTargetGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator TeleportTargetGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="TeleportTargetGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(TeleportTargetGlobalRef packet) => packet._data; 
 }
 
 
@@ -7774,6 +8065,122 @@ public readonly ref struct WalkRequestRef
 
 
 /// <summary>
+/// Is sent by the client when: A global-world player wants to walk from an absolute ushort coordinate.
+/// Causes reaction on server side: The player gets moved using global-world coordinates.
+/// </summary>
+public readonly ref struct WalkRequestGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WalkRequestGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public WalkRequestGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WalkRequestGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private WalkRequestGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (byte)data.Length;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC1;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0xD5;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C1HeaderRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the source x.
+    /// </summary>
+    public ushort SourceX
+    {
+        get => ReadUInt16BigEndian(this._data[3..]);
+        set => WriteUInt16BigEndian(this._data[3..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the source y.
+    /// </summary>
+    public ushort SourceY
+    {
+        get => ReadUInt16BigEndian(this._data[5..]);
+        set => WriteUInt16BigEndian(this._data[5..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the step count.
+    /// </summary>
+    public byte StepCount
+    {
+        get => this._data[7..].GetByteValue(4, 0);
+        set => this._data[7..].SetByteValue(value, 4, 0);
+    }
+
+    /// <summary>
+    /// Gets or sets the target rotation.
+    /// </summary>
+    public byte TargetRotation
+    {
+        get => this._data[7..].GetByteValue(4, 4);
+        set => this._data[7..].SetByteValue(value, 4, 4);
+    }
+
+    /// <summary>
+    /// Gets or sets the directions.
+    /// </summary>
+    public Span<byte> Directions
+    {
+        get => this._data.Slice(8);
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="WalkRequestGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator WalkRequestGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="WalkRequestGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(WalkRequestGlobalRef packet) => packet._data; 
+
+    /// <summary>
+    /// Calculates the size of the packet for the specified length of <see cref="Directions"/>.
+    /// </summary>
+    /// <param name="directionsLength">The length in bytes of <see cref="Directions"/> on which the required size depends.</param>
+        
+    public static int GetRequiredSize(int directionsLength) => directionsLength + 8;
+}
+
+
+/// <summary>
 /// Is sent by the client when: A player wants to walk on the game map.
 /// Causes reaction on server side: The player gets moved on the map, visible for other surrounding players.
 /// </summary>
@@ -9508,6 +9915,130 @@ public readonly ref struct AreaSkillRef
     /// <param name="packet">The packet as struct.</param>
     /// <returns>The packet as byte span.</returns>
     public static implicit operator Span<byte>(AreaSkillRef packet) => packet._data; 
+}
+
+
+/// <summary>
+/// Is sent by the client when: A player is performing a skill which affects an area of the map in a global coordinate world.
+/// Causes reaction on server side: It's forwarded to all surrounding players, so that the animation is visible. In the original server implementation, no damage is done yet for attack skills - there are separate hit packets.
+/// </summary>
+public readonly ref struct AreaSkillGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AreaSkillGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public AreaSkillGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AreaSkillGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private AreaSkillGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (byte)Math.Min(data.Length, Length);
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC3;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0xCE;
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 15;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C3HeaderRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the skill id.
+    /// </summary>
+    public ushort SkillId
+    {
+        get => ReadUInt16BigEndian(this._data[3..]);
+        set => WriteUInt16BigEndian(this._data[3..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the target x.
+    /// </summary>
+    public ushort TargetX
+    {
+        get => ReadUInt16BigEndian(this._data[5..]);
+        set => WriteUInt16BigEndian(this._data[5..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the target y.
+    /// </summary>
+    public ushort TargetY
+    {
+        get => ReadUInt16BigEndian(this._data[7..]);
+        set => WriteUInt16BigEndian(this._data[7..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the rotation.
+    /// </summary>
+    public byte Rotation
+    {
+        get => this._data[9];
+        set => this._data[9] = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the extra target id.
+    /// </summary>
+    public ushort ExtraTargetId
+    {
+        get => ReadUInt16BigEndian(this._data[12..]);
+        set => WriteUInt16BigEndian(this._data[12..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets animation counter which acts as a reference to the previously sent Area Skill Animation packet.
+    /// </summary>
+    public byte AnimationCounter
+    {
+        get => this._data[14];
+        set => this._data[14] = value;
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="AreaSkillGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator AreaSkillGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="AreaSkillGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(AreaSkillGlobalRef packet) => packet._data; 
 }
 
 

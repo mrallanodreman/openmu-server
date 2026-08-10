@@ -17,4 +17,4 @@ Depending on the LogOutType, the game server does several checks and sends a res
 | 2 | 1 |    Byte   | 0xF1  | Packet header - packet type identifier |
 | 3 | 1 |    Byte   | 0x03  | Packet header - sub packet type identifier |
 | 4 | 1 | Byte | 4 | Type |
-| 5 | 1 | Byte |  | Param |
+| 5 | 1 | Byte |  | ItemSlot |

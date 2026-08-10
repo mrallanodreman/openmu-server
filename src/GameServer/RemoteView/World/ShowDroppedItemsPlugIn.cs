@@ -37,8 +37,14 @@ public class ShowDroppedItemsPlugIn : IShowDroppedItemsPlugIn
         }
 
         int itemCount = droppedItems.Count();
+        bool global = droppedItems.Any(item => item.Position.X > byte.MaxValue || item.Position.Y > byte.MaxValue);
         int Write()
         {
+            if (global)
+            {
+                return WriteGlobal(connection, droppedItems, freshDrops, this._player.ItemSerializer);
+            }
+
             var itemSerializer = this._player.ItemSerializer;
             var droppedItemLength = ItemsDroppedRef.DroppedItemRef.GetRequiredSize(itemSerializer.NeededSpace);
             var size = ItemsDroppedRef.GetRequiredSize(itemCount, droppedItemLength);
@@ -60,8 +66,8 @@ public class ShowDroppedItemsPlugIn : IShowDroppedItemsPlugIn
                     itemBlock.IsFreshDrop = true;
                 }
 
-                itemBlock.PositionX = item.Position.X;
-                itemBlock.PositionY = item.Position.Y;
+                itemBlock.PositionX = checked((byte)(item.Position.X));
+                itemBlock.PositionY = checked((byte)(item.Position.Y));
                 var itemSize = itemSerializer.SerializeItem(itemBlock.ItemData, item.Item);
                 actualSize += ItemsDroppedRef.DroppedItemRef.GetRequiredSize(itemSize);
                 i++;
@@ -72,5 +78,37 @@ public class ShowDroppedItemsPlugIn : IShowDroppedItemsPlugIn
         }
 
         await connection.SendAsync(Write).ConfigureAwait(false);
+    }
+
+    private static int WriteGlobal(IConnection connection, IEnumerable<DroppedItem> droppedItems, bool freshDrops, IItemSerializer itemSerializer)
+    {
+        int itemCount = droppedItems.Count();
+        int droppedItemLength = ItemsDroppedGlobalRef.DroppedItemGlobalRef.GetRequiredSize(itemSerializer.NeededSpace);
+        int size = ItemsDroppedGlobalRef.GetRequiredSize(itemCount, droppedItemLength);
+        var span = connection.Output.GetSpan(size)[..size];
+        var packet = new ItemsDroppedGlobalRef(span)
+        {
+            ItemCount = (byte)itemCount,
+        };
+
+        int headerSize = ItemsDroppedGlobalRef.GetRequiredSize(0, 0);
+        int actualSize = headerSize;
+        foreach (var item in droppedItems)
+        {
+            var itemBlock = new ItemsDroppedGlobalRef.DroppedItemGlobalRef(span[actualSize..]);
+            itemBlock.Id = item.Id;
+            if (freshDrops)
+            {
+                itemBlock.IsFreshDrop = true;
+            }
+
+            itemBlock.PositionX = item.Position.X;
+            itemBlock.PositionY = item.Position.Y;
+            var itemSize = itemSerializer.SerializeItem(itemBlock.ItemData, item.Item);
+            actualSize += ItemsDroppedGlobalRef.DroppedItemGlobalRef.GetRequiredSize(itemSize);
+        }
+
+        span.Slice(0, actualSize).SetPacketSize();
+        return actualSize;
     }
 }

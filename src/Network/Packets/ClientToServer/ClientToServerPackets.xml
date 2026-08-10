@@ -250,7 +250,33 @@
         <Field>
           <Index>5</Index>
           <Type>Byte</Type>
-          <Name>Param</Name>
+          <Name>ItemSlot</Name>
+        </Field>
+      </Fields>
+    </Packet>
+    <Packet>
+      <HeaderType>C3Header</HeaderType>
+      <Code>CF</Code>
+      <Name>DropItemRequestGlobal</Name>
+      <Length>8</Length>
+      <Direction>ClientToServer</Direction>
+      <SentWhen>A player requests to drop an item of his inventory on the ground in a global coordinate world.</SentWhen>
+      <CausedReaction>When the specified coordinates are valid, and the item is allowed to be dropped, it will be dropped on the ground and the surrounding players are notified using ushort coordinates.</CausedReaction>
+      <Fields>
+        <Field>
+          <Index>3</Index>
+          <Type>ShortBigEndian</Type>
+          <Name>TargetX</Name>
+        </Field>
+        <Field>
+          <Index>5</Index>
+          <Type>ShortBigEndian</Type>
+          <Name>TargetY</Name>
+        </Field>
+        <Field>
+          <Index>7</Index>
+          <Type>Byte</Type>
+          <Name>ItemSlot</Name>
         </Field>
       </Fields>
     </Packet>
@@ -738,6 +764,32 @@
     </Packet>
     <Packet>
       <HeaderType>C3Header</HeaderType>
+      <Code>CD</Code>
+      <Name>EnterGateRequestGlobal</Name>
+      <Length>10</Length>
+      <Direction>ClientToServer</Direction>
+      <SentWhen>In a global-world: when the player enters an area on the game map which is configured as gate at the client data files, or, in the special case of wizards, for the teleport skill (GateNumber is 0 and the target coordinates are specified).</SentWhen>
+      <CausedReaction>If the player is allowed to enter the "gate", it's moved to the corresponding exit gate area.</CausedReaction>
+      <Fields>
+        <Field>
+          <Index>4</Index>
+          <Type>ShortLittleEndian</Type>
+          <Name>GateNumber</Name>
+        </Field>
+        <Field>
+          <Index>6</Index>
+          <Type>ShortBigEndian</Type>
+          <Name>TeleportTargetX</Name>
+        </Field>
+        <Field>
+          <Index>8</Index>
+          <Type>ShortBigEndian</Type>
+          <Name>TeleportTargetY</Name>
+        </Field>
+      </Fields>
+    </Packet>
+    <Packet>
+      <HeaderType>C3Header</HeaderType>
       <Code>1C</Code>
       <Name>EnterGateRequest075</Name>
       <Length>6</Length>
@@ -784,6 +836,32 @@
         <Field>
           <Index>6</Index>
           <Type>Byte</Type>
+          <Name>TeleportTargetY</Name>
+        </Field>
+      </Fields>
+    </Packet>
+    <Packet>
+      <HeaderType>C3Header</HeaderType>
+      <Code>CC</Code>
+      <Name>TeleportTargetGlobal</Name>
+      <Length>9</Length>
+      <Direction>ClientToServer</Direction>
+      <SentWhen>A wizard uses the 'Teleport Ally' skill to teleport a party member of his view range to a nearby coordinate in a global coordinate world.</SentWhen>
+      <CausedReaction>If the target player is in the same party and in the range, it will teleported to the specified coordinates.</CausedReaction>
+      <Fields>
+        <Field>
+          <Index>3</Index>
+          <Type>ShortLittleEndian</Type>
+          <Name>TargetId</Name>
+        </Field>
+        <Field>
+          <Index>5</Index>
+          <Type>ShortBigEndian</Type>
+          <Name>TeleportTargetX</Name>
+        </Field>
+        <Field>
+          <Index>7</Index>
+          <Type>ShortBigEndian</Type>
           <Name>TeleportTargetY</Name>
         </Field>
       </Fields>
@@ -1952,6 +2030,45 @@
     </Packet>
     <Packet>
       <HeaderType>C1Header</HeaderType>
+      <Code>D5</Code>
+      <Name>WalkRequestGlobal</Name>
+      <Direction>ClientToServer</Direction>
+      <SentWhen>A global-world player wants to walk from an absolute ushort coordinate.</SentWhen>
+      <CausedReaction>The player gets moved using global-world coordinates.</CausedReaction>
+      <Fields>
+        <Field>
+          <Index>3</Index>
+          <Type>ShortBigEndian</Type>
+          <Name>SourceX</Name>
+        </Field>
+        <Field>
+          <Index>5</Index>
+          <Type>ShortBigEndian</Type>
+          <Name>SourceY</Name>
+        </Field>
+        <Field>
+          <Index>7</Index>
+          <LeftShifted>0</LeftShifted>
+          <Type>Byte</Type>
+          <Name>StepCount</Name>
+          <Length>4</Length>
+        </Field>
+        <Field>
+          <Index>7</Index>
+          <LeftShifted>4</LeftShifted>
+          <Type>Byte</Type>
+          <Name>TargetRotation</Name>
+          <Length>4</Length>
+        </Field>
+        <Field>
+          <Index>8</Index>
+          <Type>Binary</Type>
+          <Name>Directions</Name>
+        </Field>
+      </Fields>
+    </Packet>
+    <Packet>
+      <HeaderType>C1Header</HeaderType>
       <Code>10</Code>
       <Name>WalkRequest075</Name>
       <Direction>ClientToServer</Direction>
@@ -2368,6 +2485,48 @@
         </Field>
         <Field>
           <Index>12</Index>
+          <Type>Byte</Type>
+          <Name>AnimationCounter</Name>
+          <Description>Animation counter which acts as a reference to the previously sent Area Skill Animation packet.</Description>
+        </Field>
+      </Fields>
+    </Packet>
+    <Packet>
+      <HeaderType>C3Header</HeaderType>
+      <Code>CE</Code>
+      <Name>AreaSkillGlobal</Name>
+      <Length>15</Length>
+      <Direction>ClientToServer</Direction>
+      <SentWhen>A player is performing a skill which affects an area of the map in a global coordinate world.</SentWhen>
+      <CausedReaction>It's forwarded to all surrounding players, so that the animation is visible. In the original server implementation, no damage is done yet for attack skills - there are separate hit packets.</CausedReaction>
+      <Fields>
+        <Field>
+          <Index>3</Index>
+          <Type>ShortBigEndian</Type>
+          <Name>SkillId</Name>
+        </Field>
+        <Field>
+          <Index>5</Index>
+          <Type>ShortBigEndian</Type>
+          <Name>TargetX</Name>
+        </Field>
+        <Field>
+          <Index>7</Index>
+          <Type>ShortBigEndian</Type>
+          <Name>TargetY</Name>
+        </Field>
+        <Field>
+          <Index>9</Index>
+          <Type>Byte</Type>
+          <Name>Rotation</Name>
+        </Field>
+        <Field>
+          <Index>12</Index>
+          <Type>ShortBigEndian</Type>
+          <Name>ExtraTargetId</Name>
+        </Field>
+        <Field>
+          <Index>14</Index>
           <Type>Byte</Type>
           <Name>AnimationCounter</Name>
           <Description>Animation counter which acts as a reference to the previously sent Area Skill Animation packet.</Description>

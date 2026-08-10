@@ -31,6 +31,11 @@ public class ShowMoneyDropExtendedPlugIn : IShowMoneyDropPlugIn
     /// <inheritdoc/>
     public ValueTask ShowMoneyAsync(ushort itemId, bool isFreshDrop, uint amount, Point point)
     {
-        return this._player.Connection.SendMoneyDroppedExtendedAsync(isFreshDrop, itemId, point.X, point.Y, amount);
+        if (point.X > byte.MaxValue || point.Y > byte.MaxValue)
+        {
+            return this._player.Connection.SendMoneyDroppedExtendedGlobalAsync(isFreshDrop, itemId, point.X, point.Y, amount);
+        }
+
+        return this._player.Connection.SendMoneyDroppedExtendedAsync(isFreshDrop, itemId, checked((byte)(point.X)), checked((byte)(point.Y)), amount);
     }
 }

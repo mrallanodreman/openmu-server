@@ -580,6 +580,362 @@ public readonly ref struct GameServerEnteredRef
 
 
 /// <summary>
+/// Is sent by the server when: After a character with global coordinates was selected and entered the game.
+/// Causes reaction on client side: The character enters the global game world.
+/// </summary>
+public readonly ref struct CharacterInformationGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CharacterInformationGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public CharacterInformationGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CharacterInformationGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private CharacterInformationGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (byte)Math.Min(data.Length, Length);
+            header.SubCode = SubCode;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC3;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0xF3;
+
+    /// <summary>
+    /// Gets the operation sub-code of this data packet.
+    /// The <see cref="Code" /> is used as a grouping key.
+    /// </summary>
+    public static byte SubCode => 0x61;
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 94;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C3HeaderWithSubCodeRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the x.
+    /// </summary>
+    public ushort X
+    {
+        get => ReadUInt16LittleEndian(this._data[4..]);
+        set => WriteUInt16LittleEndian(this._data[4..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the y.
+    /// </summary>
+    public ushort Y
+    {
+        get => ReadUInt16LittleEndian(this._data[6..]);
+        set => WriteUInt16LittleEndian(this._data[6..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the map id.
+    /// </summary>
+    public ushort MapId
+    {
+        get => ReadUInt16LittleEndian(this._data[8..]);
+        set => WriteUInt16LittleEndian(this._data[8..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current experience.
+    /// </summary>
+    public ulong CurrentExperience
+    {
+        get => ReadUInt64BigEndian(this._data[10..]);
+        set => WriteUInt64BigEndian(this._data[10..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the experience for next level.
+    /// </summary>
+    public ulong ExperienceForNextLevel
+    {
+        get => ReadUInt64BigEndian(this._data[18..]);
+        set => WriteUInt64BigEndian(this._data[18..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the level up points.
+    /// </summary>
+    public ushort LevelUpPoints
+    {
+        get => ReadUInt16LittleEndian(this._data[26..]);
+        set => WriteUInt16LittleEndian(this._data[26..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the strength.
+    /// </summary>
+    public ushort Strength
+    {
+        get => ReadUInt16LittleEndian(this._data[28..]);
+        set => WriteUInt16LittleEndian(this._data[28..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the agility.
+    /// </summary>
+    public ushort Agility
+    {
+        get => ReadUInt16LittleEndian(this._data[30..]);
+        set => WriteUInt16LittleEndian(this._data[30..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the vitality.
+    /// </summary>
+    public ushort Vitality
+    {
+        get => ReadUInt16LittleEndian(this._data[32..]);
+        set => WriteUInt16LittleEndian(this._data[32..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the energy.
+    /// </summary>
+    public ushort Energy
+    {
+        get => ReadUInt16LittleEndian(this._data[34..]);
+        set => WriteUInt16LittleEndian(this._data[34..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the leadership.
+    /// </summary>
+    public ushort Leadership
+    {
+        get => ReadUInt16LittleEndian(this._data[36..]);
+        set => WriteUInt16LittleEndian(this._data[36..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current health.
+    /// </summary>
+    public uint CurrentHealth
+    {
+        get => ReadUInt32LittleEndian(this._data[38..]);
+        set => WriteUInt32LittleEndian(this._data[38..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the maximum health.
+    /// </summary>
+    public uint MaximumHealth
+    {
+        get => ReadUInt32LittleEndian(this._data[42..]);
+        set => WriteUInt32LittleEndian(this._data[42..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current mana.
+    /// </summary>
+    public uint CurrentMana
+    {
+        get => ReadUInt32LittleEndian(this._data[46..]);
+        set => WriteUInt32LittleEndian(this._data[46..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the maximum mana.
+    /// </summary>
+    public uint MaximumMana
+    {
+        get => ReadUInt32LittleEndian(this._data[50..]);
+        set => WriteUInt32LittleEndian(this._data[50..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current shield.
+    /// </summary>
+    public uint CurrentShield
+    {
+        get => ReadUInt32LittleEndian(this._data[54..]);
+        set => WriteUInt32LittleEndian(this._data[54..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the maximum shield.
+    /// </summary>
+    public uint MaximumShield
+    {
+        get => ReadUInt32LittleEndian(this._data[58..]);
+        set => WriteUInt32LittleEndian(this._data[58..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current ability.
+    /// </summary>
+    public uint CurrentAbility
+    {
+        get => ReadUInt32LittleEndian(this._data[62..]);
+        set => WriteUInt32LittleEndian(this._data[62..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the maximum ability.
+    /// </summary>
+    public uint MaximumAbility
+    {
+        get => ReadUInt32LittleEndian(this._data[66..]);
+        set => WriteUInt32LittleEndian(this._data[66..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the money.
+    /// </summary>
+    public uint Money
+    {
+        get => ReadUInt32LittleEndian(this._data[70..]);
+        set => WriteUInt32LittleEndian(this._data[70..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the hero state.
+    /// </summary>
+    public CharacterHeroState HeroState
+    {
+        get => (CharacterHeroState)this._data[74];
+        set => this._data[74] = (byte)value;
+    }
+
+    /// <summary>
+    /// Gets or sets the status.
+    /// </summary>
+    public CharacterStatus Status
+    {
+        get => (CharacterStatus)this._data[75];
+        set => this._data[75] = (byte)value;
+    }
+
+    /// <summary>
+    /// Gets or sets the used fruit points.
+    /// </summary>
+    public ushort UsedFruitPoints
+    {
+        get => ReadUInt16LittleEndian(this._data[76..]);
+        set => WriteUInt16LittleEndian(this._data[76..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the max fruit points.
+    /// </summary>
+    public ushort MaxFruitPoints
+    {
+        get => ReadUInt16LittleEndian(this._data[78..]);
+        set => WriteUInt16LittleEndian(this._data[78..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the used negative fruit points.
+    /// </summary>
+    public ushort UsedNegativeFruitPoints
+    {
+        get => ReadUInt16LittleEndian(this._data[80..]);
+        set => WriteUInt16LittleEndian(this._data[80..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the max negative fruit points.
+    /// </summary>
+    public ushort MaxNegativeFruitPoints
+    {
+        get => ReadUInt16LittleEndian(this._data[82..]);
+        set => WriteUInt16LittleEndian(this._data[82..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the attack speed.
+    /// </summary>
+    public ushort AttackSpeed
+    {
+        get => ReadUInt16LittleEndian(this._data[84..]);
+        set => WriteUInt16LittleEndian(this._data[84..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the magic speed.
+    /// </summary>
+    public ushort MagicSpeed
+    {
+        get => ReadUInt16LittleEndian(this._data[86..]);
+        set => WriteUInt16LittleEndian(this._data[86..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the maximum attack speed.
+    /// </summary>
+    public ushort MaximumAttackSpeed
+    {
+        get => ReadUInt16LittleEndian(this._data[88..]);
+        set => WriteUInt16LittleEndian(this._data[88..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the inventory extensions.
+    /// </summary>
+    public byte InventoryExtensions
+    {
+        get => this._data[90];
+        set => this._data[90] = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the resets.
+    /// </summary>
+    public ushort Resets
+    {
+        get => ReadUInt16LittleEndian(this._data[92..]);
+        set => WriteUInt16LittleEndian(this._data[92..], value);
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="CharacterInformationGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator CharacterInformationGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="CharacterInformationGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(CharacterInformationGlobalRef packet) => packet._data; 
+}
+
+
+/// <summary>
 /// Is sent by the server when: A magic effect was added or removed to the own or another player.
 /// Causes reaction on client side: The user interface updates itself. If it's the effect of the own player, it's shown as icon at the top of the interface.
 /// </summary>
@@ -931,6 +1287,183 @@ public readonly ref struct AddCharacterToScopeExtendedRef
     /// <param name="appearanceAndEffectsLength">The length in bytes of <see cref="AppearanceAndEffects"/> on which the required size depends.</param>
         
     public static int GetRequiredSize(int appearanceAndEffectsLength) => appearanceAndEffectsLength + 26;
+}
+
+
+/// <summary>
+/// Is sent by the server when: A character entered the observed scope in the global coordinate world.
+/// Causes reaction on client side: The client adds the character using absolute ushort coordinates.
+/// </summary>
+public readonly ref struct AddCharacterToScopeGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AddCharacterToScopeGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public AddCharacterToScopeGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AddCharacterToScopeGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private AddCharacterToScopeGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (ushort)data.Length;
+            header.SubCode = SubCode;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC2;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0x12;
+
+    /// <summary>
+    /// Gets the operation sub-code of this data packet.
+    /// The <see cref="Code" /> is used as a grouping key.
+    /// </summary>
+    public static byte SubCode => 0xD6;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C2HeaderWithSubCodeRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the id.
+    /// </summary>
+    public ushort Id
+    {
+        get => ReadUInt16LittleEndian(this._data[5..]);
+        set => WriteUInt16LittleEndian(this._data[5..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current position x.
+    /// </summary>
+    public ushort CurrentPositionX
+    {
+        get => ReadUInt16LittleEndian(this._data[7..]);
+        set => WriteUInt16LittleEndian(this._data[7..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current position y.
+    /// </summary>
+    public ushort CurrentPositionY
+    {
+        get => ReadUInt16LittleEndian(this._data[9..]);
+        set => WriteUInt16LittleEndian(this._data[9..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the target position x.
+    /// </summary>
+    public ushort TargetPositionX
+    {
+        get => ReadUInt16LittleEndian(this._data[11..]);
+        set => WriteUInt16LittleEndian(this._data[11..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the target position y.
+    /// </summary>
+    public ushort TargetPositionY
+    {
+        get => ReadUInt16LittleEndian(this._data[13..]);
+        set => WriteUInt16LittleEndian(this._data[13..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the rotation.
+    /// </summary>
+    public byte Rotation
+    {
+        get => this._data[15..].GetByteValue(4, 4);
+        set => this._data[15..].SetByteValue(value, 4, 4);
+    }
+
+    /// <summary>
+    /// Gets or sets the hero state.
+    /// </summary>
+    public CharacterHeroState HeroState
+    {
+        get => (CharacterHeroState)this._data[15..].GetByteValue(4, 0);
+        set => this._data[15..].SetByteValue((byte)value, 4, 0);
+    }
+
+    /// <summary>
+    /// Gets or sets the attack speed.
+    /// </summary>
+    public ushort AttackSpeed
+    {
+        get => ReadUInt16LittleEndian(this._data[17..]);
+        set => WriteUInt16LittleEndian(this._data[17..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the magic speed.
+    /// </summary>
+    public ushort MagicSpeed
+    {
+        get => ReadUInt16LittleEndian(this._data[19..]);
+        set => WriteUInt16LittleEndian(this._data[19..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the name.
+    /// </summary>
+    public string Name
+    {
+        get => this._data.ExtractString(21, 10, System.Text.Encoding.UTF8);
+        set => this._data.Slice(21, 10).WriteString(value, System.Text.Encoding.UTF8);
+    }
+
+    /// <summary>
+    /// Gets or sets the appearance and effects.
+    /// </summary>
+    public Span<byte> AppearanceAndEffects
+    {
+        get => this._data.Slice(31);
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="AddCharacterToScopeGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator AddCharacterToScopeGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="AddCharacterToScopeGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(AddCharacterToScopeGlobalRef packet) => packet._data; 
+
+    /// <summary>
+    /// Calculates the size of the packet for the specified length of <see cref="AppearanceAndEffects"/>.
+    /// </summary>
+    /// <param name="appearanceAndEffectsLength">The length in bytes of <see cref="AppearanceAndEffects"/> on which the required size depends.</param>
+        
+    public static int GetRequiredSize(int appearanceAndEffectsLength) => appearanceAndEffectsLength + 31;
 }
 
 
@@ -2440,6 +2973,238 @@ public readonly ref struct EffectIdRef
 
 
 /// <summary>
+/// Is sent by the server when: One or more summoned monsters got into the observed scope of the player in a global coordinate world.
+/// Causes reaction on client side: The client adds the monsters to the shown map using ushort coordinates.
+/// </summary>
+public readonly ref partial struct AddSummonedMonstersToScopeGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AddSummonedMonstersToScopeGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public AddSummonedMonstersToScopeGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AddSummonedMonstersToScopeGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private AddSummonedMonstersToScopeGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (ushort)data.Length;
+            header.SubCode = SubCode;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC2;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0x1F;
+
+    /// <summary>
+    /// Gets the operation sub-code of this data packet.
+    /// The <see cref="Code" /> is used as a grouping key.
+    /// </summary>
+    public static byte SubCode => 0xD0;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C2HeaderWithSubCodeRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the monster count.
+    /// </summary>
+    public byte MonsterCount
+    {
+        get => this._data[5];
+        set => this._data[5] = value;
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="AddSummonedMonstersToScopeGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator AddSummonedMonstersToScopeGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="AddSummonedMonstersToScopeGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(AddSummonedMonstersToScopeGlobalRef packet) => packet._data; 
+
+    /// <summary>
+    /// Calculates the size of the packet for the specified count of <see cref="SummonedMonsterDataGlobalRef"/> and it's size.
+    /// </summary>
+    /// <param name="summonedMonstersCount">The count of <see cref="SummonedMonsterDataGlobalRef"/> from which the size will be calculated.</param>
+    /// <param name="structLength">The length of <see cref="SummonedMonsterDataGlobalRef"/> from which the size will be calculated.</param>
+          
+    public static int GetRequiredSize(int summonedMonstersCount, int structLength) => summonedMonstersCount * structLength + 6;
+
+
+/// <summary>
+/// Contains the data of a summoned monster in a global coordinate world..
+/// </summary>
+public readonly ref struct SummonedMonsterDataGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SummonedMonsterDataGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public SummonedMonsterDataGlobalRef(Span<byte> data)
+    {
+        this._data = data;
+    }
+
+    /// <summary>
+    /// Gets or sets the id.
+    /// </summary>
+    public ushort Id
+    {
+        get => ReadUInt16BigEndian(this._data);
+        set => WriteUInt16BigEndian(this._data, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the type number.
+    /// </summary>
+    public ushort TypeNumber
+    {
+        get => ReadUInt16BigEndian(this._data[2..]);
+        set => WriteUInt16BigEndian(this._data[2..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current position x.
+    /// </summary>
+    public ushort CurrentPositionX
+    {
+        get => ReadUInt16BigEndian(this._data[4..]);
+        set => WriteUInt16BigEndian(this._data[4..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current position y.
+    /// </summary>
+    public ushort CurrentPositionY
+    {
+        get => ReadUInt16BigEndian(this._data[6..]);
+        set => WriteUInt16BigEndian(this._data[6..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the target position x.
+    /// </summary>
+    public ushort TargetPositionX
+    {
+        get => ReadUInt16BigEndian(this._data[8..]);
+        set => WriteUInt16BigEndian(this._data[8..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the target position y.
+    /// </summary>
+    public ushort TargetPositionY
+    {
+        get => ReadUInt16BigEndian(this._data[10..]);
+        set => WriteUInt16BigEndian(this._data[10..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the rotation.
+    /// </summary>
+    public byte Rotation
+    {
+        get => this._data[12..].GetByteValue(4, 4);
+        set => this._data[12..].SetByteValue(value, 4, 4);
+    }
+
+    /// <summary>
+    /// Gets or sets the owner character name.
+    /// </summary>
+    public string OwnerCharacterName
+    {
+        get => this._data.ExtractString(13, 10, System.Text.Encoding.UTF8);
+        set => this._data.Slice(13, 10).WriteString(value, System.Text.Encoding.UTF8);
+    }
+
+    /// <summary>
+    /// Gets or sets defines the number of effects which would be sent after this field. This is currently not supported.
+    /// </summary>
+    public byte EffectCount
+    {
+        get => this._data[23];
+        set => this._data[23] = value;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="EffectIdRef"/> of the specified index.
+    /// </summary>
+        public EffectIdRef this[int index] => new (this._data[(24 + index * EffectIdRef.Length)..]);
+
+    /// <summary>
+    /// Calculates the size of the packet for the specified count of <see cref="EffectIdRef"/>.
+    /// </summary>
+    /// <param name="effectsCount">The count of <see cref="EffectIdRef"/> from which the size will be calculated.</param>
+        
+    public static int GetRequiredSize(int effectsCount) => effectsCount * EffectIdRef.Length + 24;
+}
+
+
+/// <summary>
+/// Contains the id of a magic effect..
+/// </summary>
+public readonly ref struct EffectIdRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EffectIdRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public EffectIdRef(Span<byte> data)
+    {
+        this._data = data;
+    }
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 1;
+
+    /// <summary>
+    /// Gets or sets the id.
+    /// </summary>
+    public byte Id
+    {
+        get => this._data[0];
+        set => this._data[0] = value;
+    }
+}
+}
+
+
+/// <summary>
 /// Is sent by the server when: One or more summoned monsters got into the observed scope of the player.
 /// Causes reaction on client side: The client adds the monsters to the shown map.
 /// </summary>
@@ -3306,6 +4071,128 @@ public readonly ref struct AreaSkillAnimationRef
     /// <param name="packet">The packet as struct.</param>
     /// <returns>The packet as byte span.</returns>
     public static implicit operator Span<byte>(AreaSkillAnimationRef packet) => packet._data; 
+}
+
+
+/// <summary>
+/// Is sent by the server when: An object performs a skill which has effect on an area in a global coordinate world.
+/// Causes reaction on client side: The animation is shown on the user interface using ushort coordinates.
+/// </summary>
+public readonly ref struct AreaSkillAnimationGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AreaSkillAnimationGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public AreaSkillAnimationGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AreaSkillAnimationGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private AreaSkillAnimationGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (byte)Math.Min(data.Length, Length);
+            header.SubCode = SubCode;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC3;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0x1E;
+
+    /// <summary>
+    /// Gets the operation sub-code of this data packet.
+    /// The <see cref="Code" /> is used as a grouping key.
+    /// </summary>
+    public static byte SubCode => 0xD0;
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 14;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C3HeaderWithSubCodeRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the skill id.
+    /// </summary>
+    public ushort SkillId
+    {
+        get => ReadUInt16BigEndian(this._data[4..]);
+        set => WriteUInt16BigEndian(this._data[4..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the player id.
+    /// </summary>
+    public ushort PlayerId
+    {
+        get => ReadUInt16BigEndian(this._data[6..]);
+        set => WriteUInt16BigEndian(this._data[6..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the point x.
+    /// </summary>
+    public ushort PointX
+    {
+        get => ReadUInt16BigEndian(this._data[8..]);
+        set => WriteUInt16BigEndian(this._data[8..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the point y.
+    /// </summary>
+    public ushort PointY
+    {
+        get => ReadUInt16BigEndian(this._data[10..]);
+        set => WriteUInt16BigEndian(this._data[10..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the rotation.
+    /// </summary>
+    public byte Rotation
+    {
+        get => this._data[12];
+        set => this._data[12] = value;
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="AreaSkillAnimationGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator AreaSkillAnimationGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="AreaSkillAnimationGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(AreaSkillAnimationGlobalRef packet) => packet._data; 
 }
 
 
@@ -6643,6 +7530,112 @@ public readonly ref struct ObjectMovedRef
 
 
 /// <summary>
+/// Is sent by the server when: An object in the global-world scope moved instantly.
+/// Causes reaction on client side: The client updates the object position using absolute ushort coordinates.
+/// </summary>
+public readonly ref struct ObjectMovedGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectMovedGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public ObjectMovedGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectMovedGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private ObjectMovedGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (byte)Math.Min(data.Length, Length);
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC1;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0xD6;
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 10;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C1HeaderRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the header code.
+    /// </summary>
+    public byte HeaderCode
+    {
+        get => this._data[2];
+        set => this._data[2] = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the object id.
+    /// </summary>
+    public ushort ObjectId
+    {
+        get => ReadUInt16BigEndian(this._data[3..]);
+        set => WriteUInt16BigEndian(this._data[3..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the position x.
+    /// </summary>
+    public ushort PositionX
+    {
+        get => ReadUInt16BigEndian(this._data[5..]);
+        set => WriteUInt16BigEndian(this._data[5..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the position y.
+    /// </summary>
+    public ushort PositionY
+    {
+        get => ReadUInt16BigEndian(this._data[7..]);
+        set => WriteUInt16BigEndian(this._data[7..], value);
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="ObjectMovedGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator ObjectMovedGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="ObjectMovedGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(ObjectMovedGlobalRef packet) => packet._data; 
+}
+
+
+/// <summary>
 /// Is sent by the server when: An object in the observed scope (including the own player) walked to another position.
 /// Causes reaction on client side: The object is animated to walk to the new position.
 /// </summary>
@@ -6925,6 +7918,158 @@ public readonly ref struct ObjectWalkedExtendedRef
     /// <param name="stepDataLength">The length in bytes of <see cref="StepData"/> on which the required size depends.</param>
         
     public static int GetRequiredSize(int stepDataLength) => stepDataLength + 10;
+}
+
+
+/// <summary>
+/// Is sent by the server when: An object in the global-world scope walked to another absolute position.
+/// Causes reaction on client side: The object is animated to walk using global coordinates.
+/// </summary>
+public readonly ref struct ObjectWalkedGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectWalkedGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public ObjectWalkedGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ObjectWalkedGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private ObjectWalkedGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (byte)data.Length;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC1;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0xD5;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C1HeaderRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the header code.
+    /// </summary>
+    public byte HeaderCode
+    {
+        get => this._data[2];
+        set => this._data[2] = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the object id.
+    /// </summary>
+    public ushort ObjectId
+    {
+        get => ReadUInt16BigEndian(this._data[3..]);
+        set => WriteUInt16BigEndian(this._data[3..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the source x.
+    /// </summary>
+    public ushort SourceX
+    {
+        get => ReadUInt16BigEndian(this._data[5..]);
+        set => WriteUInt16BigEndian(this._data[5..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the source y.
+    /// </summary>
+    public ushort SourceY
+    {
+        get => ReadUInt16BigEndian(this._data[7..]);
+        set => WriteUInt16BigEndian(this._data[7..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the target x.
+    /// </summary>
+    public ushort TargetX
+    {
+        get => ReadUInt16BigEndian(this._data[9..]);
+        set => WriteUInt16BigEndian(this._data[9..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the target y.
+    /// </summary>
+    public ushort TargetY
+    {
+        get => ReadUInt16BigEndian(this._data[11..]);
+        set => WriteUInt16BigEndian(this._data[11..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the target rotation.
+    /// </summary>
+    public byte TargetRotation
+    {
+        get => this._data[13..].GetByteValue(4, 4);
+        set => this._data[13..].SetByteValue(value, 4, 4);
+    }
+
+    /// <summary>
+    /// Gets or sets the step count.
+    /// </summary>
+    public byte StepCount
+    {
+        get => this._data[13..].GetByteValue(4, 0);
+        set => this._data[13..].SetByteValue(value, 4, 0);
+    }
+
+    /// <summary>
+    /// Gets or sets the step data.
+    /// </summary>
+    public Span<byte> StepData
+    {
+        get => this._data.Slice(14);
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="ObjectWalkedGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator ObjectWalkedGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="ObjectWalkedGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(ObjectWalkedGlobalRef packet) => packet._data; 
+
+    /// <summary>
+    /// Calculates the size of the packet for the specified length of <see cref="StepData"/>.
+    /// </summary>
+    /// <param name="stepDataLength">The length in bytes of <see cref="StepData"/> on which the required size depends.</param>
+        
+    public static int GetRequiredSize(int stepDataLength) => stepDataLength + 14;
 }
 
 
@@ -7370,6 +8515,129 @@ public readonly ref struct MapChangedRef
 
 
 /// <summary>
+/// Is sent by the server when: The map or global position changed.
+/// Causes reaction on client side: The client changes map and position using ushort coordinates.
+/// </summary>
+public readonly ref struct MapChangedGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MapChangedGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public MapChangedGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MapChangedGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private MapChangedGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (byte)Math.Min(data.Length, Length);
+            header.SubCode = SubCode;
+            this.IsMapChange = true;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC3;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0x1C;
+
+    /// <summary>
+    /// Gets the operation sub-code of this data packet.
+    /// The <see cref="Code" /> is used as a grouping key.
+    /// </summary>
+    public static byte SubCode => 0x10;
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 12;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C3HeaderWithSubCodeRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the is map change.
+    /// </summary>
+    public bool IsMapChange
+    {
+        get => this._data[4..].GetBoolean();
+        set => this._data[4..].SetBoolean(value);
+    }
+
+    /// <summary>
+    /// Gets or sets the map number.
+    /// </summary>
+    public ushort MapNumber
+    {
+        get => ReadUInt16BigEndian(this._data[5..]);
+        set => WriteUInt16BigEndian(this._data[5..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the position x.
+    /// </summary>
+    public ushort PositionX
+    {
+        get => ReadUInt16BigEndian(this._data[7..]);
+        set => WriteUInt16BigEndian(this._data[7..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the position y.
+    /// </summary>
+    public ushort PositionY
+    {
+        get => ReadUInt16BigEndian(this._data[9..]);
+        set => WriteUInt16BigEndian(this._data[9..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the rotation.
+    /// </summary>
+    public byte Rotation
+    {
+        get => this._data[11];
+        set => this._data[11] = value;
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="MapChangedGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator MapChangedGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="MapChangedGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(MapChangedGlobalRef packet) => packet._data; 
+}
+
+
+/// <summary>
 /// Is sent by the server when: The map was changed on the server side.
 /// Causes reaction on client side: The game client changes to the specified map and coordinates.
 /// </summary>
@@ -7729,6 +8997,169 @@ public readonly ref struct DroppedItemRef
 
 
 /// <summary>
+/// Is sent by the server when: The items dropped on the ground in a global coordinate world.
+/// Causes reaction on client side: The client adds the items to the ground using ushort coordinates.
+/// </summary>
+public readonly ref struct ItemsDroppedGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ItemsDroppedGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public ItemsDroppedGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ItemsDroppedGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private ItemsDroppedGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (ushort)data.Length;
+            header.SubCode = SubCode;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC2;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0x20;
+
+    /// <summary>
+    /// Gets the operation sub-code of this data packet.
+    /// The <see cref="Code" /> is used as a grouping key.
+    /// </summary>
+    public static byte SubCode => 0xD0;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C2HeaderWithSubCodeRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the item count.
+    /// </summary>
+    public byte ItemCount
+    {
+        get => this._data[5];
+        set => this._data[5] = value;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="DroppedItemGlobalRef"/> of the specified index.
+    /// </summary>
+        public DroppedItemGlobalRef this[int index, int droppedItemGlobalLength] => new (this._data[(6 + index * droppedItemGlobalLength)..]);
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="ItemsDroppedGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator ItemsDroppedGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="ItemsDroppedGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(ItemsDroppedGlobalRef packet) => packet._data; 
+
+    /// <summary>
+    /// Calculates the size of the packet for the specified count of <see cref="DroppedItemGlobalRef"/> and it's size.
+    /// </summary>
+    /// <param name="itemsCount">The count of <see cref="DroppedItemGlobalRef"/> from which the size will be calculated.</param>
+    /// <param name="structLength">The length of <see cref="DroppedItemGlobalRef"/> from which the size will be calculated.</param>
+          
+    public static int GetRequiredSize(int itemsCount, int structLength) => itemsCount * structLength + 6;
+
+
+/// <summary>
+/// Contains the data about a dropped item in a global coordinate world..
+/// </summary>
+public readonly ref struct DroppedItemGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DroppedItemGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public DroppedItemGlobalRef(Span<byte> data)
+    {
+        this._data = data;
+    }
+
+    /// <summary>
+    /// Gets or sets the id.
+    /// </summary>
+    public ushort Id
+    {
+        get => ReadUInt16BigEndian(this._data);
+        set => WriteUInt16BigEndian(this._data, value);
+    }
+
+    /// <summary>
+    /// Gets or sets if this flag is set, the item is added to the map with an animation and sound. Otherwise it's just added like it was already on the ground before.
+    /// </summary>
+    public bool IsFreshDrop
+    {
+        get => this._data.GetBoolean(7);
+        set => this._data.SetBoolean(value, 7);
+    }
+
+    /// <summary>
+    /// Gets or sets the position x.
+    /// </summary>
+    public ushort PositionX
+    {
+        get => ReadUInt16BigEndian(this._data[2..]);
+        set => WriteUInt16BigEndian(this._data[2..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the position y.
+    /// </summary>
+    public ushort PositionY
+    {
+        get => ReadUInt16BigEndian(this._data[4..]);
+        set => WriteUInt16BigEndian(this._data[4..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the item data.
+    /// </summary>
+    public Span<byte> ItemData
+    {
+        get => this._data.Slice(6);
+    }
+
+    /// <summary>
+    /// Calculates the size of the packet for the specified length of <see cref="ItemData"/>.
+    /// </summary>
+    /// <param name="itemDataLength">The length in bytes of <see cref="ItemData"/> on which the required size depends.</param>
+        
+    public static int GetRequiredSize(int itemDataLength) => itemDataLength + 6;
+}
+}
+
+
+/// <summary>
 /// Is sent by the server when: Money dropped on the ground.
 /// Causes reaction on client side: The client adds the money to the ground.
 /// </summary>
@@ -7865,6 +9296,158 @@ public readonly ref partial struct MoneyDroppedRef
 
 
 /// <summary>
+/// Is sent by the server when: Money dropped on the ground in a global coordinate world.
+/// Causes reaction on client side: The client adds the money to the ground using ushort coordinates.
+/// </summary>
+public readonly ref struct MoneyDroppedGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MoneyDroppedGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public MoneyDroppedGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MoneyDroppedGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private MoneyDroppedGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (ushort)Math.Min(data.Length, Length);
+            header.SubCode = SubCode;
+            this.ItemCount = 1;
+            this.MoneyNumber = 15;
+            this.MoneyGroup = 14;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC2;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0x20;
+
+    /// <summary>
+    /// Gets the operation sub-code of this data packet.
+    /// The <see cref="Code" /> is used as a grouping key.
+    /// </summary>
+    public static byte SubCode => 0xD1;
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 25;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C2HeaderWithSubCodeRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the item count.
+    /// </summary>
+    public byte ItemCount
+    {
+        get => this._data[5];
+        set => this._data[5] = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the id.
+    /// </summary>
+    public ushort Id
+    {
+        get => ReadUInt16BigEndian(this._data[6..]);
+        set => WriteUInt16BigEndian(this._data[6..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets if this flag is set, the money is added to the map with an animation and sound. Otherwise it's just added like it was already on the ground before.
+    /// </summary>
+    public bool IsFreshDrop
+    {
+        get => this._data[6..].GetBoolean(7);
+        set => this._data[6..].SetBoolean(value, 7);
+    }
+
+    /// <summary>
+    /// Gets or sets the position x.
+    /// </summary>
+    public ushort PositionX
+    {
+        get => ReadUInt16BigEndian(this._data[8..]);
+        set => WriteUInt16BigEndian(this._data[8..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the position y.
+    /// </summary>
+    public ushort PositionY
+    {
+        get => ReadUInt16BigEndian(this._data[10..]);
+        set => WriteUInt16BigEndian(this._data[10..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the money number.
+    /// </summary>
+    public byte MoneyNumber
+    {
+        get => this._data[12];
+        set => this._data[12] = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the amount.
+    /// </summary>
+    public uint Amount
+    {
+        get => ReadUInt32LittleEndian(this._data[13..]);
+        set => WriteUInt32LittleEndian(this._data[13..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the money group.
+    /// </summary>
+    public byte MoneyGroup
+    {
+        get => this._data[17..].GetByteValue(8, 4);
+        set => this._data[17..].SetByteValue(value, 8, 4);
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="MoneyDroppedGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator MoneyDroppedGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="MoneyDroppedGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(MoneyDroppedGlobalRef packet) => packet._data; 
+}
+
+
+/// <summary>
 /// Is sent by the server when: Money dropped on the ground.
 /// Causes reaction on client side: The client adds the money to the ground.
 /// </summary>
@@ -7976,6 +9559,128 @@ public readonly ref struct MoneyDroppedExtendedRef
     /// <param name="packet">The packet as struct.</param>
     /// <returns>The packet as byte span.</returns>
     public static implicit operator Span<byte>(MoneyDroppedExtendedRef packet) => packet._data; 
+}
+
+
+/// <summary>
+/// Is sent by the server when: Money dropped on the ground in a global coordinate world.
+/// Causes reaction on client side: The client adds the money to the ground using ushort coordinates.
+/// </summary>
+public readonly ref struct MoneyDroppedExtendedGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MoneyDroppedExtendedGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public MoneyDroppedExtendedGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MoneyDroppedExtendedGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private MoneyDroppedExtendedGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (byte)Math.Min(data.Length, Length);
+            header.SubCode = SubCode;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC1;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0x2F;
+
+    /// <summary>
+    /// Gets the operation sub-code of this data packet.
+    /// The <see cref="Code" /> is used as a grouping key.
+    /// </summary>
+    public static byte SubCode => 0xD0;
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 14;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C1HeaderWithSubCodeRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets if this flag is set, the money is added to the map with an animation and sound. Otherwise, it's just added like it was already on the ground before.
+    /// </summary>
+    public bool IsFreshDrop
+    {
+        get => this._data[3..].GetBoolean();
+        set => this._data[3..].SetBoolean(value);
+    }
+
+    /// <summary>
+    /// Gets or sets the id.
+    /// </summary>
+    public ushort Id
+    {
+        get => ReadUInt16LittleEndian(this._data[4..]);
+        set => WriteUInt16LittleEndian(this._data[4..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the position x.
+    /// </summary>
+    public ushort PositionX
+    {
+        get => ReadUInt16BigEndian(this._data[6..]);
+        set => WriteUInt16BigEndian(this._data[6..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the position y.
+    /// </summary>
+    public ushort PositionY
+    {
+        get => ReadUInt16BigEndian(this._data[8..]);
+        set => WriteUInt16BigEndian(this._data[8..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the amount.
+    /// </summary>
+    public uint Amount
+    {
+        get => ReadUInt32LittleEndian(this._data[10..]);
+        set => WriteUInt32LittleEndian(this._data[10..], value);
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="MoneyDroppedExtendedGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator MoneyDroppedExtendedGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="MoneyDroppedExtendedGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(MoneyDroppedExtendedGlobalRef packet) => packet._data; 
 }
 
 
@@ -12091,6 +13796,255 @@ public readonly ref struct EffectIdRef
 
 
 /// <summary>
+/// Is sent by the server when: The player wears a monster transformation ring in a global coordinate world.
+/// Causes reaction on client side: The character appears as monster, defined by the Skin property, using ushort coordinates.
+/// </summary>
+public readonly ref partial struct AddTransformedCharactersToScopeGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AddTransformedCharactersToScopeGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public AddTransformedCharactersToScopeGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AddTransformedCharactersToScopeGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private AddTransformedCharactersToScopeGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (ushort)data.Length;
+            header.SubCode = SubCode;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC2;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0x45;
+
+    /// <summary>
+    /// Gets the operation sub-code of this data packet.
+    /// The <see cref="Code" /> is used as a grouping key.
+    /// </summary>
+    public static byte SubCode => 0xD0;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C2HeaderWithSubCodeRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the character count.
+    /// </summary>
+    public byte CharacterCount
+    {
+        get => this._data[5];
+        set => this._data[5] = value;
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="AddTransformedCharactersToScopeGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator AddTransformedCharactersToScopeGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="AddTransformedCharactersToScopeGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(AddTransformedCharactersToScopeGlobalRef packet) => packet._data; 
+
+    /// <summary>
+    /// Calculates the size of the packet for the specified count of <see cref="CharacterDataGlobalRef"/> and it's size.
+    /// </summary>
+    /// <param name="charactersCount">The count of <see cref="CharacterDataGlobalRef"/> from which the size will be calculated.</param>
+    /// <param name="structLength">The length of <see cref="CharacterDataGlobalRef"/> from which the size will be calculated.</param>
+          
+    public static int GetRequiredSize(int charactersCount, int structLength) => charactersCount * structLength + 6;
+
+
+/// <summary>
+/// Contains the data of an transformed character in a global coordinate world..
+/// </summary>
+public readonly ref struct CharacterDataGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CharacterDataGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public CharacterDataGlobalRef(Span<byte> data)
+    {
+        this._data = data;
+    }
+
+    /// <summary>
+    /// Gets or sets the id.
+    /// </summary>
+    public ushort Id
+    {
+        get => ReadUInt16BigEndian(this._data);
+        set => WriteUInt16BigEndian(this._data, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current position x.
+    /// </summary>
+    public ushort CurrentPositionX
+    {
+        get => ReadUInt16BigEndian(this._data[2..]);
+        set => WriteUInt16BigEndian(this._data[2..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current position y.
+    /// </summary>
+    public ushort CurrentPositionY
+    {
+        get => ReadUInt16BigEndian(this._data[4..]);
+        set => WriteUInt16BigEndian(this._data[4..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the skin.
+    /// </summary>
+    public ushort Skin
+    {
+        get => ReadUInt16BigEndian(this._data[6..]);
+        set => WriteUInt16BigEndian(this._data[6..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the name.
+    /// </summary>
+    public string Name
+    {
+        get => this._data.ExtractString(8, 10, System.Text.Encoding.UTF8);
+        set => this._data.Slice(8, 10).WriteString(value, System.Text.Encoding.UTF8);
+    }
+
+    /// <summary>
+    /// Gets or sets the target position x.
+    /// </summary>
+    public ushort TargetPositionX
+    {
+        get => ReadUInt16BigEndian(this._data[18..]);
+        set => WriteUInt16BigEndian(this._data[18..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the target position y.
+    /// </summary>
+    public ushort TargetPositionY
+    {
+        get => ReadUInt16BigEndian(this._data[20..]);
+        set => WriteUInt16BigEndian(this._data[20..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the rotation.
+    /// </summary>
+    public byte Rotation
+    {
+        get => this._data[22..].GetByteValue(4, 4);
+        set => this._data[22..].SetByteValue(value, 4, 4);
+    }
+
+    /// <summary>
+    /// Gets or sets the hero state.
+    /// </summary>
+    public CharacterHeroState HeroState
+    {
+        get => (CharacterHeroState)this._data[22..].GetByteValue(4, 0);
+        set => this._data[22..].SetByteValue((byte)value, 4, 0);
+    }
+
+    /// <summary>
+    /// Gets or sets the appearance.
+    /// </summary>
+    public Span<byte> Appearance
+    {
+        get => this._data.Slice(23, 18);
+    }
+
+    /// <summary>
+    /// Gets or sets defines the number of effects which would be sent after this field.
+    /// </summary>
+    public byte EffectCount
+    {
+        get => this._data[41];
+        set => this._data[41] = value;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="EffectIdRef"/> of the specified index.
+    /// </summary>
+        public EffectIdRef this[int index] => new (this._data[(42 + index * EffectIdRef.Length)..]);
+
+    /// <summary>
+    /// Calculates the size of the packet for the specified count of <see cref="EffectIdRef"/>.
+    /// </summary>
+    /// <param name="effectsCount">The count of <see cref="EffectIdRef"/> from which the size will be calculated.</param>
+        
+    public static int GetRequiredSize(int effectsCount) => effectsCount * EffectIdRef.Length + 42;
+}
+
+
+/// <summary>
+/// Contains the id of a magic effect..
+/// </summary>
+public readonly ref struct EffectIdRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EffectIdRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public EffectIdRef(Span<byte> data)
+    {
+        this._data = data;
+    }
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 1;
+
+    /// <summary>
+    /// Gets or sets the id.
+    /// </summary>
+    public byte Id
+    {
+        get => this._data[0];
+        set => this._data[0] = value;
+    }
+}
+}
+
+
+/// <summary>
 /// Is sent by the server when: The server wants to alter the terrain attributes of a map at runtime.
 /// Causes reaction on client side: The client updates the terrain attributes on its side.
 /// </summary>
@@ -13880,6 +15834,164 @@ public readonly ref struct RespawnAfterDeathRef
     /// <param name="packet">The packet as struct.</param>
     /// <returns>The packet as byte span.</returns>
     public static implicit operator Span<byte>(RespawnAfterDeathRef packet) => packet._data; 
+}
+
+
+/// <summary>
+/// Is sent by the server when: The character respawned at a global coordinate.
+/// Causes reaction on client side: The character respawns with the specified attributes.
+/// </summary>
+public readonly ref struct RespawnAfterDeathGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RespawnAfterDeathGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public RespawnAfterDeathGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RespawnAfterDeathGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private RespawnAfterDeathGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (byte)Math.Min(data.Length, Length);
+            header.SubCode = SubCode;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC1;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0xF3;
+
+    /// <summary>
+    /// Gets the operation sub-code of this data packet.
+    /// The <see cref="Code" /> is used as a grouping key.
+    /// </summary>
+    public static byte SubCode => 0x64;
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 31;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C1HeaderWithSubCodeRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the position x.
+    /// </summary>
+    public ushort PositionX
+    {
+        get => ReadUInt16LittleEndian(this._data[4..]);
+        set => WriteUInt16LittleEndian(this._data[4..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the position y.
+    /// </summary>
+    public ushort PositionY
+    {
+        get => ReadUInt16LittleEndian(this._data[6..]);
+        set => WriteUInt16LittleEndian(this._data[6..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the map number.
+    /// </summary>
+    public ushort MapNumber
+    {
+        get => ReadUInt16LittleEndian(this._data[8..]);
+        set => WriteUInt16LittleEndian(this._data[8..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the direction.
+    /// </summary>
+    public byte Direction
+    {
+        get => this._data[10];
+        set => this._data[10] = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the current health.
+    /// </summary>
+    public uint CurrentHealth
+    {
+        get => ReadUInt32LittleEndian(this._data[11..]);
+        set => WriteUInt32LittleEndian(this._data[11..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current mana.
+    /// </summary>
+    public uint CurrentMana
+    {
+        get => ReadUInt32LittleEndian(this._data[15..]);
+        set => WriteUInt32LittleEndian(this._data[15..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current shield.
+    /// </summary>
+    public uint CurrentShield
+    {
+        get => ReadUInt32LittleEndian(this._data[19..]);
+        set => WriteUInt32LittleEndian(this._data[19..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current ability.
+    /// </summary>
+    public uint CurrentAbility
+    {
+        get => ReadUInt32LittleEndian(this._data[23..]);
+        set => WriteUInt32LittleEndian(this._data[23..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the money.
+    /// </summary>
+    public uint Money
+    {
+        get => ReadUInt32LittleEndian(this._data[27..]);
+        set => WriteUInt32LittleEndian(this._data[27..], value);
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="RespawnAfterDeathGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator RespawnAfterDeathGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="RespawnAfterDeathGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(RespawnAfterDeathGlobalRef packet) => packet._data; 
 }
 
 
@@ -29345,4 +31457,576 @@ public readonly ref struct EventChipRegistrationResultRef
     /// <param name="packet">The packet as struct.</param>
     /// <returns>The packet as byte span.</returns>
     public static implicit operator Span<byte>(EventChipRegistrationResultRef packet) => packet._data; 
+}
+
+
+/// <summary>
+/// Is sent by the server when: While an owned temporary companion is active in the party and after a state mutation.
+/// Causes reaction on client side: The client replaces the selected companion snapshot.
+/// </summary>
+public readonly ref struct CompanionStateRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CompanionStateRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public CompanionStateRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CompanionStateRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private CompanionStateRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (ushort)Math.Min(data.Length, Length);
+            header.SubCode = SubCode;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC4;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0xF3;
+
+    /// <summary>
+    /// Gets the operation sub-code of this data packet.
+    /// The <see cref="Code" /> is used as a grouping key.
+    /// </summary>
+    public static byte SubCode => 0x60;
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 386;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C4HeaderWithSubCodeRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the companion id.
+    /// </summary>
+    public uint CompanionId
+    {
+        get => ReadUInt32LittleEndian(this._data[5..]);
+        set => WriteUInt32LittleEndian(this._data[5..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the revision.
+    /// </summary>
+    public uint Revision
+    {
+        get => ReadUInt32LittleEndian(this._data[9..]);
+        set => WriteUInt32LittleEndian(this._data[9..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the name.
+    /// </summary>
+    public string Name
+    {
+        get => this._data.ExtractString(13, 10, System.Text.Encoding.UTF8);
+        set => this._data.Slice(13, 10).WriteString(value, System.Text.Encoding.UTF8);
+    }
+
+    /// <summary>
+    /// Gets or sets the class.
+    /// </summary>
+    public byte Class
+    {
+        get => this._data[23];
+        set => this._data[23] = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the level.
+    /// </summary>
+    public ushort Level
+    {
+        get => ReadUInt16LittleEndian(this._data[24..]);
+        set => WriteUInt16LittleEndian(this._data[24..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the master level.
+    /// </summary>
+    public ushort MasterLevel
+    {
+        get => ReadUInt16LittleEndian(this._data[26..]);
+        set => WriteUInt16LittleEndian(this._data[26..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the available stat points.
+    /// </summary>
+    public uint AvailableStatPoints
+    {
+        get => ReadUInt32LittleEndian(this._data[28..]);
+        set => WriteUInt32LittleEndian(this._data[28..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the strength.
+    /// </summary>
+    public uint Strength
+    {
+        get => ReadUInt32LittleEndian(this._data[32..]);
+        set => WriteUInt32LittleEndian(this._data[32..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the agility.
+    /// </summary>
+    public uint Agility
+    {
+        get => ReadUInt32LittleEndian(this._data[36..]);
+        set => WriteUInt32LittleEndian(this._data[36..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the vitality.
+    /// </summary>
+    public uint Vitality
+    {
+        get => ReadUInt32LittleEndian(this._data[40..]);
+        set => WriteUInt32LittleEndian(this._data[40..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the energy.
+    /// </summary>
+    public uint Energy
+    {
+        get => ReadUInt32LittleEndian(this._data[44..]);
+        set => WriteUInt32LittleEndian(this._data[44..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the helper state.
+    /// </summary>
+    public byte HelperState
+    {
+        get => this._data[48];
+        set => this._data[48] = value;
+    }
+
+    /// <summary>
+    /// Gets or sets the current health.
+    /// </summary>
+    public uint CurrentHealth
+    {
+        get => ReadUInt32LittleEndian(this._data[49..]);
+        set => WriteUInt32LittleEndian(this._data[49..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the maximum health.
+    /// </summary>
+    public uint MaximumHealth
+    {
+        get => ReadUInt32LittleEndian(this._data[53..]);
+        set => WriteUInt32LittleEndian(this._data[53..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current mana.
+    /// </summary>
+    public uint CurrentMana
+    {
+        get => ReadUInt32LittleEndian(this._data[57..]);
+        set => WriteUInt32LittleEndian(this._data[57..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the maximum mana.
+    /// </summary>
+    public uint MaximumMana
+    {
+        get => ReadUInt32LittleEndian(this._data[61..]);
+        set => WriteUInt32LittleEndian(this._data[61..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current shield.
+    /// </summary>
+    public uint CurrentShield
+    {
+        get => ReadUInt32LittleEndian(this._data[65..]);
+        set => WriteUInt32LittleEndian(this._data[65..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the maximum shield.
+    /// </summary>
+    public uint MaximumShield
+    {
+        get => ReadUInt32LittleEndian(this._data[69..]);
+        set => WriteUInt32LittleEndian(this._data[69..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the helper configuration length.
+    /// </summary>
+    public ushort HelperConfigurationLength
+    {
+        get => ReadUInt16LittleEndian(this._data[73..]);
+        set => WriteUInt16LittleEndian(this._data[73..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the helper configuration.
+    /// </summary>
+    public Span<byte> HelperConfiguration
+    {
+        get => this._data.Slice(75, 257);
+    }
+
+    /// <summary>
+    /// Gets or sets the equipment.
+    /// </summary>
+    public Span<byte> Equipment
+    {
+        get => this._data.Slice(332, 27);
+    }
+
+    /// <summary>
+    /// Gets or sets the inventory.
+    /// </summary>
+    public Span<byte> Inventory
+    {
+        get => this._data.Slice(359, 27);
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="CompanionState"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator CompanionStateRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="CompanionState"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(CompanionStateRef packet) => packet._data; 
+}
+
+
+/// <summary>
+/// Is sent by the server when: After CompanionState or after a companion inventory mutation.
+/// Causes reaction on client side: The client replaces the companion inventory snapshot.
+/// </summary>
+public readonly ref struct CompanionInventoryRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CompanionInventoryRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public CompanionInventoryRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CompanionInventoryRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private CompanionInventoryRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (ushort)data.Length;
+            header.SubCode = SubCode;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC4;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0xF3;
+
+    /// <summary>
+    /// Gets the operation sub-code of this data packet.
+    /// The <see cref="Code" /> is used as a grouping key.
+    /// </summary>
+    public static byte SubCode => 0x62;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C4HeaderWithSubCodeRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the companion id.
+    /// </summary>
+    public uint CompanionId
+    {
+        get => ReadUInt32LittleEndian(this._data[5..]);
+        set => WriteUInt32LittleEndian(this._data[5..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the revision.
+    /// </summary>
+    public uint Revision
+    {
+        get => ReadUInt32LittleEndian(this._data[9..]);
+        set => WriteUInt32LittleEndian(this._data[9..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the item count.
+    /// </summary>
+    public byte ItemCount
+    {
+        get => this._data[13];
+        set => this._data[13] = value;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="StoredItemRef"/> of the specified index.
+    /// </summary>
+        public StoredItemRef this[int index, int storedItemLength] => new (this._data[(14 + index * storedItemLength)..]);
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="CompanionInventory"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator CompanionInventoryRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="CompanionInventory"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(CompanionInventoryRef packet) => packet._data; 
+
+    /// <summary>
+    /// Calculates the size of the packet for the specified count of <see cref="StoredItemRef"/> and it's size.
+    /// </summary>
+    /// <param name="itemsCount">The count of <see cref="StoredItemRef"/> from which the size will be calculated.</param>
+    /// <param name="structLength">The length of <see cref="StoredItemRef"/> from which the size will be calculated.</param>
+          
+    public static int GetRequiredSize(int itemsCount, int structLength) => itemsCount * structLength + 14;
+}
+
+
+/// <summary>
+/// Is sent by the server when: NPCs enter scope in a global coordinate world.
+/// Causes reaction on client side: The client adds NPCs using ushort coordinates.
+/// </summary>
+public readonly ref struct AddNpcsToScopeGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AddNpcsToScopeGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public AddNpcsToScopeGlobalRef(Span<byte> data)
+        : this(data, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AddNpcsToScopeGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    /// <param name="initialize">If set to <c>true</c>, the header data is automatically initialized and written to the underlying span.</param>
+    private AddNpcsToScopeGlobalRef(Span<byte> data, bool initialize)
+    {
+        this._data = data;
+        if (initialize)
+        {
+            var header = this.Header;
+            header.Type = HeaderType;
+            header.Code = Code;
+            header.Length = (ushort)data.Length;
+            header.SubCode = SubCode;
+        }
+    }
+
+    /// <summary>
+    /// Gets the header type of this data packet.
+    /// </summary>
+    public static byte HeaderType => 0xC2;
+
+    /// <summary>
+    /// Gets the operation code of this data packet.
+    /// </summary>
+    public static byte Code => 0x13;
+
+    /// <summary>
+    /// Gets the operation sub-code of this data packet.
+    /// The <see cref="Code" /> is used as a grouping key.
+    /// </summary>
+    public static byte SubCode => 0xD5;
+
+    /// <summary>
+    /// Gets the header of this packet.
+    /// </summary>
+    public C2HeaderWithSubCodeRef Header => new (this._data);
+
+    /// <summary>
+    /// Gets or sets the npc count.
+    /// </summary>
+    public byte NpcCount
+    {
+        get => this._data[5];
+        set => this._data[5] = value;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="NpcDataGlobalRef"/> of the specified index.
+    /// </summary>
+        public NpcDataGlobalRef this[int index] => new (this._data[(6 + index * NpcDataGlobalRef.Length)..]);
+
+    /// <summary>
+    /// Performs an implicit conversion from a Span of bytes to a <see cref="AddNpcsToScopeGlobal"/>.
+    /// </summary>
+    /// <param name="packet">The packet as span.</param>
+    /// <returns>The packet as struct.</returns>
+    public static implicit operator AddNpcsToScopeGlobalRef(Span<byte> packet) => new (packet, false);
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="AddNpcsToScopeGlobal"/> to a Span of bytes.
+    /// </summary>
+    /// <param name="packet">The packet as struct.</param>
+    /// <returns>The packet as byte span.</returns>
+    public static implicit operator Span<byte>(AddNpcsToScopeGlobalRef packet) => packet._data; 
+
+    /// <summary>
+    /// Calculates the size of the packet for the specified count of <see cref="NpcDataGlobalRef"/>.
+    /// </summary>
+    /// <param name="nPCsCount">The count of <see cref="NpcDataGlobalRef"/> from which the size will be calculated.</param>
+        
+    public static int GetRequiredSize(int nPCsCount) => nPCsCount * NpcDataGlobalRef.Length + 6;
+
+
+/// <summary>
+/// NPC data with global ushort coordinates..
+/// </summary>
+public readonly ref struct NpcDataGlobalRef
+{
+    private readonly Span<byte> _data;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NpcDataGlobalRef"/> struct.
+    /// </summary>
+    /// <param name="data">The underlying data.</param>
+    public NpcDataGlobalRef(Span<byte> data)
+    {
+        this._data = data;
+    }
+
+    /// <summary>
+    /// Gets the initial length of this data packet. When the size is dynamic, this value may be bigger than actually needed.
+    /// </summary>
+    public static int Length => 14;
+
+    /// <summary>
+    /// Gets or sets the id.
+    /// </summary>
+    public ushort Id
+    {
+        get => ReadUInt16BigEndian(this._data);
+        set => WriteUInt16BigEndian(this._data, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the type number.
+    /// </summary>
+    public ushort TypeNumber
+    {
+        get => ReadUInt16BigEndian(this._data[2..]);
+        set => WriteUInt16BigEndian(this._data[2..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current position x.
+    /// </summary>
+    public ushort CurrentPositionX
+    {
+        get => ReadUInt16BigEndian(this._data[4..]);
+        set => WriteUInt16BigEndian(this._data[4..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the current position y.
+    /// </summary>
+    public ushort CurrentPositionY
+    {
+        get => ReadUInt16BigEndian(this._data[6..]);
+        set => WriteUInt16BigEndian(this._data[6..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the target position x.
+    /// </summary>
+    public ushort TargetPositionX
+    {
+        get => ReadUInt16BigEndian(this._data[8..]);
+        set => WriteUInt16BigEndian(this._data[8..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the target position y.
+    /// </summary>
+    public ushort TargetPositionY
+    {
+        get => ReadUInt16BigEndian(this._data[10..]);
+        set => WriteUInt16BigEndian(this._data[10..], value);
+    }
+
+    /// <summary>
+    /// Gets or sets the rotation.
+    /// </summary>
+    public byte Rotation
+    {
+        get => this._data[12..].GetByteValue(4, 4);
+        set => this._data[12..].SetByteValue(value, 4, 4);
+    }
+
+    /// <summary>
+    /// Gets or sets the effect count.
+    /// </summary>
+    public byte EffectCount
+    {
+        get => this._data[13];
+        set => this._data[13] = value;
+    }
+}
 }
