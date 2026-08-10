@@ -126,10 +126,10 @@ public sealed class MapEditorHistory
     private class AreaSnapshot : IUndoStep
     {
         private readonly IMapArea _area;
-        private readonly byte _x1;
-        private readonly byte _y1;
-        private readonly byte _x2;
-        private readonly byte _y2;
+        private readonly ushort _x1;
+        private readonly ushort _y1;
+        private readonly ushort _x2;
+        private readonly ushort _y2;
 
         public AreaSnapshot(IMapArea area)
         {

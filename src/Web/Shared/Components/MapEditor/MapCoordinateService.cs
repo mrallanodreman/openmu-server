@@ -31,7 +31,7 @@ public sealed class MapCoordinateService
     /// A tuple of (X, Y) map coordinates if the position is within bounds;
     /// otherwise <see langword="null"/>.
     /// </returns>
-    public (byte X, byte Y)? GetMapCoordinates(
+    public (ushort X, ushort Y)? GetMapCoordinates(
         double clientX,
         double clientY,
         BoundingClientRect rect,
@@ -50,7 +50,7 @@ public sealed class MapCoordinateService
 
         if (gameX >= 0 && gameX < MapSize && gameY >= 0 && gameY < MapSize)
         {
-            return ((byte)gameX, (byte)gameY);
+            return ((ushort)gameX, (ushort)gameY);
         }
 
         return null;

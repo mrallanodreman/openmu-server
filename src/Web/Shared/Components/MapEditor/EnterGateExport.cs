@@ -15,16 +15,16 @@ public sealed record EnterGateExport
     public Guid Id { get; set; }
 
     /// <summary>Gets or sets the top-left X coordinate.</summary>
-    public byte X1 { get; set; }
+    public ushort X1 { get; set; }
 
     /// <summary>Gets or sets the top-left Y coordinate.</summary>
-    public byte Y1 { get; set; }
+    public ushort Y1 { get; set; }
 
     /// <summary>Gets or sets the bottom-right X coordinate.</summary>
-    public byte X2 { get; set; }
+    public ushort X2 { get; set; }
 
     /// <summary>Gets or sets the bottom-right Y coordinate.</summary>
-    public byte Y2 { get; set; }
+    public ushort Y2 { get; set; }
 
     /// <summary>Gets or sets the level requirement.</summary>
     public short LevelRequirement { get; set; }

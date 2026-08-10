@@ -112,8 +112,8 @@ public sealed class MapObjectSelector
     /// </returns>
     public object? GetObjectAtPosition(
         GameMapDefinition map,
-        byte x,
-        byte y,
+        ushort x,
+        ushort y,
         ObjectTypeFilter filter,
         string? search = null)
     {
@@ -158,8 +158,8 @@ public sealed class MapObjectSelector
     /// <returns>All matching objects at the position, ordered by priority.</returns>
     public IReadOnlyList<object> GetAllObjectsAtPosition(
         GameMapDefinition map,
-        byte x,
-        byte y,
+        ushort x,
+        ushort y,
         ObjectTypeFilter filter,
         string? search = null)
     {
@@ -231,7 +231,7 @@ public sealed class MapObjectSelector
         return obj?.ToString()?.Contains(search, StringComparison.InvariantCultureIgnoreCase) ?? false;
     }
 
-    private static float GetDistanceToSpawn(MonsterSpawnArea spawn, byte x, byte y, out bool isInside)
+    private static float GetDistanceToSpawn(MonsterSpawnArea spawn, ushort x, ushort y, out bool isInside)
     {
         if (spawn.IsPoint())
         {
@@ -256,7 +256,7 @@ public sealed class MapObjectSelector
         return MathF.Sqrt(MathF.Pow(x - cx, 2) + MathF.Pow(y - cy, 2));
     }
 
-    private static bool IsPointInGate(Gate gate, byte x, byte y) =>
+    private static bool IsPointInGate(Gate gate, ushort x, ushort y) =>
         x >= gate.X1 && x <= gate.X2 && y >= gate.Y1 && y <= gate.Y2;
 
     private static bool SpawnMatchesFilter(MonsterSpawnArea spawn, ObjectTypeFilter filter)
@@ -302,7 +302,7 @@ public sealed class MapObjectSelector
     /// <returns>
     /// The best matching <see cref="MonsterSpawnArea"/>, or <see langword="null"/> if none intersect the position.
     /// </returns>
-    private MonsterSpawnArea? FindBestSpawn(IEnumerable<MonsterSpawnArea> spawns, byte x, byte y, ObjectTypeFilter filter, string? search)
+    private MonsterSpawnArea? FindBestSpawn(IEnumerable<MonsterSpawnArea> spawns, ushort x, ushort y, ObjectTypeFilter filter, string? search)
     {
         MonsterSpawnArea? best = null;
         float bestDistance = float.MaxValue;

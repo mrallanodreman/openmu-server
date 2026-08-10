@@ -12,22 +12,22 @@ using MUnique.OpenMU.DataModel.Configuration;
 internal struct MapDragState
 {
     /// <summary>Gets or sets the starting X coordinate of the mouse drag.</summary>
-    public byte StartX;
+    public ushort StartX;
 
     /// <summary>Gets or sets the starting Y coordinate of the mouse drag.</summary>
-    public byte StartY;
+    public ushort StartY;
 
     /// <summary>Gets or sets the original X1 corner of the dragged object.</summary>
-    public byte OrigX1;
+    public ushort OrigX1;
 
     /// <summary>Gets or sets the original Y1 corner of the dragged object.</summary>
-    public byte OrigY1;
+    public ushort OrigY1;
 
     /// <summary>Gets or sets the original X2 corner of the dragged object.</summary>
-    public byte OrigX2;
+    public ushort OrigX2;
 
     /// <summary>Gets or sets the original Y2 corner of the dragged object.</summary>
-    public byte OrigY2;
+    public ushort OrigY2;
 
     private const int MapSize = 256;
 
@@ -51,17 +51,17 @@ internal struct MapDragState
     /// <param name="newX2">Computed new X2 value.</param>
     /// <param name="newY2">Computed new Y2 value.</param>
     /// <returns>True if the computed bounds differ from the originals.</returns>
-    public bool ApplyDrag(byte x, byte y, out byte newX1, out byte newY1, out byte newX2, out byte newY2)
+    public bool ApplyDrag(ushort x, ushort y, out ushort newX1, out ushort newY1, out ushort newX2, out ushort newY2)
     {
         int dx = x - this.StartX;
         int dy = y - this.StartY;
         int width = this.OrigX2 - this.OrigX1;
         int height = this.OrigY2 - this.OrigY1;
 
-        newX1 = (byte)Math.Clamp(this.OrigX1 + dx, 0, MapSize - 1 - width);
-        newY1 = (byte)Math.Clamp(this.OrigY1 + dy, 0, MapSize - 1 - height);
-        newX2 = (byte)(newX1 + width);
-        newY2 = (byte)(newY1 + height);
+        newX1 = (ushort)Math.Clamp(this.OrigX1 + dx, 0, MapSize - 1 - width);
+        newY1 = (ushort)Math.Clamp(this.OrigY1 + dy, 0, MapSize - 1 - height);
+        newX2 = (ushort)(newX1 + width);
+        newY2 = (ushort)(newY1 + height);
 
         return this.OrigX1 != newX1 || this.OrigY1 != newY1 || this.OrigX2 != newX2 || this.OrigY2 != newY2;
     }

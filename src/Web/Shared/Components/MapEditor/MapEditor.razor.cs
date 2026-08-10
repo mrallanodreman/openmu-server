@@ -169,7 +169,7 @@ public partial class MapEditor : IAsyncDisposable
     /// <param name="y">Map Y coordinate.</param>
     /// <param name="shiftKey">Whether the shift key was held during the click.</param>
     [JSInvokable]
-    public void OnPointerDown(byte x, byte y, bool shiftKey = false)
+    public void OnPointerDown(ushort x, ushort y, bool shiftKey = false)
     {
         if (this._resizerPosition is not null)
         {
@@ -212,7 +212,7 @@ public partial class MapEditor : IAsyncDisposable
     /// <param name="x">Map X coordinate.</param>
     /// <param name="y">Map Y coordinate.</param>
     [JSInvokable]
-    public void OnPointerMove(byte x, byte y)
+    public void OnPointerMove(ushort x, ushort y)
     {
         this._mouseMapX = x;
         this._mouseMapY = y;
@@ -573,7 +573,7 @@ public partial class MapEditor : IAsyncDisposable
             "setSelectValue", this._objectSelectRef, id.ToString()).ConfigureAwait(true);
     }
 
-    private void OnObjectDragging(byte x, byte y)
+    private void OnObjectDragging(ushort x, ushort y)
     {
         if (!this._dragState.ApplyDrag(x, y, out var newX1, out var newY1, out var newX2, out var newY2))
         {
@@ -606,7 +606,7 @@ public partial class MapEditor : IAsyncDisposable
         }
     }
 
-    private void ApplyNewBounds(byte x1, byte y1, byte x2, byte y2)
+    private void ApplyNewBounds(ushort x1, ushort y1, ushort x2, ushort y2)
     {
         if (this._focusedObject is not IMapArea area)
         {
@@ -779,7 +779,7 @@ public partial class MapEditor : IAsyncDisposable
         this._resizerPosition = position;
     }
 
-    private void HandleShiftClick(byte x, byte y)
+    private void HandleShiftClick(ushort x, ushort y)
     {
         if (this.SelectedMap is not { } map)
         {

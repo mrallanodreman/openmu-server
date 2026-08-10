@@ -18,7 +18,7 @@ internal static class MapObjectResizer
     /// <param name="position">The corner handle being dragged.</param>
     /// <param name="x">New X coordinate.</param>
     /// <param name="y">New Y coordinate.</param>
-    public static void Resize(IMapArea area, Resizers.ResizerPosition position, byte x, byte y)
+    public static void Resize(IMapArea area, Resizers.ResizerPosition position, ushort x, ushort y)
     {
         switch (position)
         {

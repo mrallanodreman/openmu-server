@@ -97,10 +97,10 @@ public interface IPlayerInfo
     /// <summary>
     /// Gets the x coordinate on the game map.
     /// </summary>
-    byte LocationX { get; }
+    ushort LocationX { get; }
 
     /// <summary>
     /// Gets the y coordinate on the game map.
     /// </summary>
-    byte LocationY { get; }
+    ushort LocationY { get; }
 }

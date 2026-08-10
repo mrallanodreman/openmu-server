@@ -29,12 +29,12 @@ public class MapObject
     /// <summary>
     /// Gets or sets the x.
     /// </summary>
-    public byte X { get; set; }
+    public ushort X { get; set; }
 
     /// <summary>
     /// Gets or sets the y.
     /// </summary>
-    public byte Y { get; set; }
+    public ushort Y { get; set; }
 
     /// <summary>
     /// Gets or sets the direction.

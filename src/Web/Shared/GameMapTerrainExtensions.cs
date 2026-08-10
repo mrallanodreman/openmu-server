@@ -21,10 +21,11 @@ public static class GameMapTerrainExtensions
     /// <returns>The rendered image.</returns>
     public static Image<Rgba32> ToImage(this GameMapTerrain terrain)
     {
-        var bitmap = new Image<Rgba32>(0x100, 0x100);
-        for (int y = 0; y < 0x100; y++)
+        var size = terrain.Size;
+        var bitmap = new Image<Rgba32>(size, size);
+        for (int y = 0; y < size; y++)
         {
-            for (int x = 0; x < 0x100; x++)
+            for (int x = 0; x < size; x++)
             {
                 var color = Color.Black;
                 if (terrain.SafezoneMap[y, x])

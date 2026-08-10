@@ -120,8 +120,8 @@ internal sealed class GameMapInfoAdapter : IGameMapInfo, IDisposable
 
         public string AccountName => this._player.Account?.LoginName ?? "N/A";
 
-        public byte LocationX => this._player.Position.X;
+        public ushort LocationX => this._player.Position.X;
 
-        public byte LocationY => this._player.Position.Y;
+        public ushort LocationY => this._player.Position.Y;
     }
 }

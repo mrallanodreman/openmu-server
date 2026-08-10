@@ -14,7 +14,7 @@ using MUnique.OpenMU.Persistence;
 /// </summary>
 public sealed class MapObjectFactory
 {
-    private const byte DefaultOffset = 5;
+    private const ushort DefaultOffset = 5;
 
     private readonly IContext _persistenceContext;
 
@@ -96,16 +96,16 @@ public sealed class MapObjectFactory
     /// Applies a positional offset to a coordinate pair, clamping to map bounds
     /// while preserving the original width and height.
     /// </summary>
-    private static void ApplyOffset(byte x1, byte y1, byte x2, byte y2, out byte outX1, out byte outY1, out byte outX2, out byte outY2)
+    private static void ApplyOffset(ushort x1, ushort y1, ushort x2, ushort y2, out ushort outX1, out ushort outY1, out ushort outX2, out ushort outY2)
     {
-        outX1 = (byte)Math.Min(x1 + DefaultOffset, byte.MaxValue);
-        outY1 = (byte)Math.Min(y1 + DefaultOffset, byte.MaxValue);
+        outX1 = (ushort)Math.Min(x1 + DefaultOffset, ushort.MaxValue);
+        outY1 = (ushort)Math.Min(y1 + DefaultOffset, ushort.MaxValue);
 
         var actualXOffset = outX1 - x1;
         var actualYOffset = outY1 - y1;
 
-        outX2 = (byte)Math.Min(x2 + actualXOffset, byte.MaxValue);
-        outY2 = (byte)Math.Min(y2 + actualYOffset, byte.MaxValue);
+        outX2 = (ushort)Math.Min(x2 + actualXOffset, ushort.MaxValue);
+        outY2 = (ushort)Math.Min(y2 + actualYOffset, ushort.MaxValue);
     }
 
     /// <summary>
