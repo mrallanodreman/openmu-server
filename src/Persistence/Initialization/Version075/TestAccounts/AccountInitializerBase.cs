@@ -159,8 +159,8 @@ internal abstract class AccountInitializerBase : InitializerBase
         var spawnGate = character.CurrentMap!.ExitGates.Where(m => m.IsSpawnGate).SelectRandom();
         if (spawnGate is not null)
         {
-            character.PositionX = (byte)Rand.NextInt(spawnGate.X1, spawnGate.X2);
-            character.PositionY = (byte)Rand.NextInt(spawnGate.Y1, spawnGate.Y2);
+            character.PositionX = (ushort)Rand.NextInt(spawnGate.X1, spawnGate.X2);
+            character.PositionY = (ushort)Rand.NextInt(spawnGate.Y1, spawnGate.Y2);
         }
         else
         {

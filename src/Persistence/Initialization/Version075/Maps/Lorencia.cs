@@ -71,6 +71,12 @@ internal class Lorencia : BaseMapInitializer
         yield return this.CreateMonsterSpawn(126, this.NpcDictionary[001], 008, 094, 011, 244, 45);
         yield return this.CreateMonsterSpawn(127, this.NpcDictionary[004], 008, 094, 011, 244, 45);
         yield return this.CreateMonsterSpawn(128, this.NpcDictionary[007], 008, 060, 011, 080, 15);
+        yield return this.CreateMonsterSpawn(129, this.NpcDictionary[000], 256, 380, 020, 120, 30);
+        yield return this.CreateMonsterSpawn(130, this.NpcDictionary[001], 256, 380, 120, 240, 30);
+        yield return this.CreateMonsterSpawn(131, this.NpcDictionary[002], 256, 380, 256, 380, 25);
+        yield return this.CreateMonsterSpawn(132, this.NpcDictionary[002], 300, 440, 300, 440, 25);
+        yield return this.CreateMonsterSpawn(133, this.NpcDictionary[006], 380, 490, 020, 120, 20);
+        yield return this.CreateMonsterSpawn(134, this.NpcDictionary[014], 380, 490, 120, 240, 15);
     }
 
     /// <inheritdoc />

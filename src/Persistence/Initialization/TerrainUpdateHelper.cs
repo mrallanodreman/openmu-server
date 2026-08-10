@@ -32,7 +32,7 @@ internal static class TerrainUpdateHelper
         if (stream is not null)
         {
             using var reader = new BinaryReader(stream);
-            var terrainData = reader.ReadBytes(3 * ushort.MaxValue);
+            var terrainData = reader.ReadBytes((int)stream.Length);
             gameMapDefinition.TerrainData = terrainData;
         }
         else

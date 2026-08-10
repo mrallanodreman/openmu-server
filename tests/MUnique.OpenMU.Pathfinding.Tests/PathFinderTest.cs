@@ -118,4 +118,56 @@ public class PathFinderTest
         var result = this._pathFinder.FindPath(start, end, this._grid, false);
         Assert.That(result, Is.Null);
     }
+
+    /// <summary>
+    /// Tests that a path crossing the old 255 byte-boundary can be found on a 512x512 grid.
+    /// This validates that pathfinding is not limited to coordinates 0..255 anymore.
+    /// </summary>
+    [Test]
+    public void TestStraightPath_Crossing255Boundary()
+    {
+        var largeGrid = new byte[512, 512];
+        for (int x = 0; x < 512; x++)
+        {
+            for (int y = 0; y < 512; y++)
+            {
+                largeGrid[x, y] = 10;
+            }
+        }
+
+        var start = new Point(250, 100);
+        var end = new Point(260, 100);
+        var result = this._pathFinder.FindPath(start, end, largeGrid, false);
+        Assert.That(result, Is.Not.Null);
+        var lastNode = result!.LastOrDefault();
+        Assert.That(lastNode, Is.Not.Null);
+        Assert.That(lastNode.X, Is.EqualTo(end.X));
+        Assert.That(lastNode.Y, Is.EqualTo(end.Y));
+        Assert.That(result!.Any(n => n.X > 255), Is.True);
+    }
+
+    /// <summary>
+    /// Tests that a path can be found at the far edge of a 512x512 grid (near coordinate 511).
+    /// </summary>
+    [Test]
+    public void TestStraightPath_FarEdge()
+    {
+        var largeGrid = new byte[512, 512];
+        for (int x = 0; x < 512; x++)
+        {
+            for (int y = 0; y < 512; y++)
+            {
+                largeGrid[x, y] = 10;
+            }
+        }
+
+        var start = new Point(500, 500);
+        var end = new Point(510, 500);
+        var result = this._pathFinder.FindPath(start, end, largeGrid, false);
+        Assert.That(result, Is.Not.Null);
+        var lastNode = result!.LastOrDefault();
+        Assert.That(lastNode, Is.Not.Null);
+        Assert.That(lastNode.X, Is.EqualTo(end.X));
+        Assert.That(lastNode.Y, Is.EqualTo(end.Y));
+    }
 }

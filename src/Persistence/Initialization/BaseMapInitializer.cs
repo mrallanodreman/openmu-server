@@ -237,7 +237,7 @@ internal abstract class BaseMapInitializer : IMapInitializer
     /// <returns>
     /// The created monster spawn area.
     /// </returns>
-    protected MonsterSpawnArea CreateMonsterSpawn(short number, MonsterDefinition monsterDefinition, byte x1, byte x2, byte y1, byte y2, short quantity = 1, Direction direction = Direction.Undefined, SpawnTrigger spawnTrigger = SpawnTrigger.Automatic, byte waveNumber = 0)
+    protected MonsterSpawnArea CreateMonsterSpawn(short number, MonsterDefinition monsterDefinition, ushort x1, ushort x2, ushort y1, ushort y2, short quantity = 1, Direction direction = Direction.Undefined, SpawnTrigger spawnTrigger = SpawnTrigger.Automatic, byte waveNumber = 0)
     {
         var area = this.Context.CreateNew<MonsterSpawnArea>();
         area.SetGuid(this.MapId, number);
@@ -266,7 +266,7 @@ internal abstract class BaseMapInitializer : IMapInitializer
     /// <returns>
     /// The created monster spawn area.
     /// </returns>
-    protected MonsterSpawnArea CreateMonsterSpawn(short number, MonsterDefinition monsterDefinition, byte x, byte y, Direction direction = Direction.Undefined, SpawnTrigger spawnTrigger = SpawnTrigger.Automatic)
+    protected MonsterSpawnArea CreateMonsterSpawn(short number, MonsterDefinition monsterDefinition, ushort x, ushort y, Direction direction = Direction.Undefined, SpawnTrigger spawnTrigger = SpawnTrigger.Automatic)
         => this.CreateMonsterSpawn(number, monsterDefinition, x, x, y, y, 1, direction, spawnTrigger);
 
     /// <summary>
