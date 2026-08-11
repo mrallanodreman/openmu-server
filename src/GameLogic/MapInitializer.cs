@@ -180,7 +180,19 @@ public class MapInitializer : IMapInitializer
         _ = this.PlugInManager ?? throw new InvalidOperationException("PlugInManager must be set first");
         _ = this.PathFinderPool ?? throw new InvalidOperationException("PathFinderPool must be set first");
 
-        var monsterDef = spawnArea.MonsterDefinition!;
+        if (spawnArea.MonsterDefinition is not { } monsterDef)
+        {
+            // An incomplete spawn area is easy to create from the admin panel, and it used to
+            // take the whole map down with it: the null reference was thrown while the spawns
+            // were being (re-)initialized, so every other monster of that map silently went
+            // missing as well. One unusable spawn should cost exactly one monster.
+            this._logger.LogError(
+                "Spawn area {SpawnAreaId} of map {Map} has no monster definition assigned. Skipping it.",
+                spawnArea,
+                createdMap.Definition.Name);
+            return null;
+        }
+
         NonPlayerCharacter npc;
 
         var intelligence = this.TryCreateConfiguredNpcIntelligence(monsterDef, createdMap);
