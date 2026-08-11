@@ -8,6 +8,12 @@ const NAME_LABEL_Z_POSITION = 200;
 const NAME_INDEX = 0;
 
 export class Attackable<TData extends ObjectData> extends THREE.Mesh implements GameObject {
+    /**
+     * Side length in tiles of the map these objects are placed on. Set by the World before
+     * it creates any object; it stays 256 for callers which never set it.
+     */
+    public static mapSideLength: number = 256;
+
     public data: TData;
     public material: THREE.Material;
     public readonly nameLabel: NameLabel;
@@ -115,7 +121,10 @@ export class Attackable<TData extends ObjectData> extends THREE.Mesh implements 
     }
 
     private setObjectPositionOnMap(newX: number, newY: number): void {
-        const offset = 128;
+        // The plane is centred on the origin, so tile coordinates are shifted by half
+        // the map. That half used to be hard-coded to 128, which silently offset every
+        // object by 128 tiles on any map that isn't 256 wide.
+        const offset = Attackable.mapSideLength / 2;
 
         this.position.y = offset - newX;
         this.position.x = newY - offset;

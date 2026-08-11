@@ -2,8 +2,8 @@
 
 window.mapApps = {};
 
-function CreateMap(serverId, mapId, containerId, appId) {
-    console.debug("Creating map; serverId: ", serverId, ", mapId: ", mapId, ", containerId: ", containerId, ", appId: ", appId);
+function CreateMap(serverId, mapId, containerId, appId, mapSize) {
+    console.debug("Creating map; serverId: ", serverId, ", mapId: ", mapId, ", containerId: ", containerId, ", appId: ", appId, ", mapSize: ", mapSize);
 
     let stats = null;
     if (typeof Stats === "function") {
@@ -25,7 +25,7 @@ function CreateMap(serverId, mapId, containerId, appId) {
                     document.getElementById("objectData_x").textContent = data.x;
                     document.getElementById("objectData_y").textContent = data.y;
                 }
-            });
+            }, mapSize);
             window[appId] = window.mapApps[serverId][mapId];
         });
 }

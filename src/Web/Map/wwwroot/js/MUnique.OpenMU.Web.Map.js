@@ -435,10 +435,11 @@ System.register("Attackable", ["three", "tween", "NameLabel"], function (exports
                     this.rotation.z = THREE.Math.degToRad((value * degreesOfOneTurn) / numberOfDirectionValues);
                 };
                 Attackable.prototype.setObjectPositionOnMap = function (newX, newY) {
-                    var offset = 128;
+                    var offset = Attackable.mapSideLength / 2;
                     this.position.y = offset - newX;
                     this.position.x = newY - offset;
                 };
+                Attackable.mapSideLength = 256;
                 return Attackable;
             }(THREE.Mesh));
             exports_6("Attackable", Attackable);
@@ -624,16 +625,19 @@ System.register("World", ["three", "Attack", "TerrainShader", "Player", "Attacka
         execute: function () {
             World = (function (_super) {
                 __extends(World, _super);
-                function World(serverId, mapId) {
+                function World(serverId, mapId, sideLength) {
+                    if (sideLength === void 0) { sideLength = World.defaultSideLength; }
                     var _this = _super.call(this) || this;
                     _this.lastLabelObjectId = null;
+                    _this.sideLength = sideLength > 0 ? sideLength : World.defaultSideLength;
+                    Attackable_3.Attackable.mapSideLength = _this.sideLength;
                     _this.objects = {};
                     var attacksZ = 100;
                     _this.attacks = new Attack_1.Attacks();
                     _this.attacks.position.z = attacksZ;
                     _this.add(_this.attacks);
                     var segments = 1;
-                    var planeMesh = new THREE.Mesh(new THREE.PlaneGeometry(World.sideLength, World.sideLength, segments, segments), new THREE.ShaderMaterial(TerrainShader_1.terrainShader));
+                    var planeMesh = new THREE.Mesh(new THREE.PlaneGeometry(_this.sideLength, _this.sideLength, segments, segments), new THREE.ShaderMaterial(TerrainShader_1.terrainShader));
                     _this.add(planeMesh);
                     var textureLoader = new THREE.TextureLoader();
                     textureLoader.load("terrain/" + serverId + "/" + mapId, function (texture) {
@@ -791,7 +795,7 @@ System.register("World", ["three", "Attack", "TerrainShader", "Player", "Attacka
                     }
                 };
                 World.prototype.onSizeChanged = function (newSize) {
-                    TerrainShader_1.terrainShader.uniforms.tPixelSize.value = World.sideLength / newSize;
+                    TerrainShader_1.terrainShader.uniforms.tPixelSize.value = this.sideLength / newSize;
                 };
                 World.prototype.addNpc = function (data) {
                     var npc = new NonPlayerCharacter_1.NonPlayerCharacter(data);
@@ -819,7 +823,7 @@ System.register("World", ["three", "Attack", "TerrainShader", "Player", "Attacka
                     this.add(mesh);
                     this.objects[mesh.data.id] = mesh;
                 };
-                World.sideLength = 256;
+                World.defaultSideLength = 256;
                 World.rotationAnimationId = 122;
                 return World;
             }(THREE.Object3D));
@@ -934,7 +938,8 @@ System.register("MapApp", ["three", "tween", "WorldObjectPicker", "World"], func
         ],
         execute: function () {
             MapApp = (function () {
-                function MapApp(stats, serverId, mapId, mapContainer, onPickObjectHandler) {
+                function MapApp(stats, serverId, mapId, mapContainer, onPickObjectHandler, mapSideLength) {
+                    if (mapSideLength === void 0) { mapSideLength = World_1.World.defaultSideLength; }
                     var _this = this;
                     this.lastHighlightedId = null;
                     this.isDisposing = false;
@@ -943,7 +948,8 @@ System.register("MapApp", ["three", "tween", "WorldObjectPicker", "World"], func
                     this.container = mapContainer;
                     this.renderer = new THREE.WebGLRenderer({ antialias: false });
                     this.scene = new THREE.Scene();
-                    this.world = new World_1.World(serverId, mapId);
+                    this.mapSideLength = mapSideLength > 0 ? mapSideLength : World_1.World.defaultSideLength;
+                    this.world = new World_1.World(serverId, mapId, this.mapSideLength);
                     this.scene.add(this.world);
                     this.camera = this.createCamera();
                     this.renderer.setSize(window.innerHeight, window.innerHeight);
@@ -1002,7 +1008,7 @@ System.register("MapApp", ["three", "tween", "WorldObjectPicker", "World"], func
                     this.renderer.render(this.scene, this.camera);
                 };
                 MapApp.prototype.createCamera = function () {
-                    var MAP_SIZE = 256;
+                    var MAP_SIZE = this.mapSideLength;
                     var NEAR = 0.1, FAR = 10000;
                     var camera = new THREE.OrthographicCamera(MAP_SIZE / -2, MAP_SIZE / 2, MAP_SIZE / 2, MAP_SIZE / -2, NEAR, FAR);
                     camera.position.z = 1000;

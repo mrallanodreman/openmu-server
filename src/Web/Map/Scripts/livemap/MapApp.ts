@@ -11,6 +11,7 @@ export class MapApp {
     private stats: Stats;
     private camera: THREE.Camera;
     private world: World;
+    private readonly mapSideLength: number;
     private scene: THREE.Scene;
     private renderer: THREE.Renderer;
     private container: HTMLElement;
@@ -25,12 +26,14 @@ export class MapApp {
         serverId: number,
         mapId: string,
         mapContainer: HTMLElement,
-        onPickObjectHandler: (data: ObjectData) => void) {
+        onPickObjectHandler: (data: ObjectData) => void,
+        mapSideLength: number = World.defaultSideLength) {
         this.stats = stats;
         this.container = mapContainer;
         this.renderer = new THREE.WebGLRenderer({ antialias: false });
         this.scene = new THREE.Scene();
-        this.world = new World(serverId, mapId);
+        this.mapSideLength = mapSideLength > 0 ? mapSideLength : World.defaultSideLength;
+        this.world = new World(serverId, mapId, this.mapSideLength);
         this.scene.add(this.world);
         this.camera = this.createCamera();
 
@@ -107,7 +110,9 @@ export class MapApp {
      * Creates an orthographic camera which looks down to the map plane from the center.
      */
     private createCamera(): THREE.Camera {
-        const MAP_SIZE = 256;
+        // The camera has to frame the whole map, so it follows the map's real size
+        // instead of the 256 every map used to have.
+        const MAP_SIZE = this.mapSideLength;
         const NEAR = 0.1, FAR = 10000;
 
         const camera = new THREE.OrthographicCamera(

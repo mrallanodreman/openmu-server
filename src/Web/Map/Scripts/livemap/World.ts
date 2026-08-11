@@ -10,7 +10,14 @@ import { NonPlayerCharacter as NPC } from "./NonPlayerCharacter";
 import { NpcData, PlayerData, ObjectData, Step } from "./Types";
 
 export class World extends THREE.Object3D {
-    private static readonly sideLength: number = 256;
+    /**
+     * Side length of the map in tiles. Maps are no longer all 256x256, so the server
+     * tells us the real size when the map is created; 256 is only the fallback for
+     * callers which don't provide one.
+     */
+    public static readonly defaultSideLength: number = 256;
+
+    private readonly sideLength: number;
     private static readonly rotationAnimationId: number = 122;
 
     private objects:
@@ -26,8 +33,13 @@ export class World extends THREE.Object3D {
      * @param serverId - The id of the server where the map is hosted.
      * @param mapId - The id of the map (GUID string).
      */
-    constructor(serverId: number, mapId: string) {
+    constructor(serverId: number, mapId: string, sideLength: number = World.defaultSideLength) {
         super();
+        this.sideLength = sideLength > 0 ? sideLength : World.defaultSideLength;
+
+        // Objects place themselves relative to the centre of the map, so they need the
+        // same side length this world was built with.
+        Attackable.mapSideLength = this.sideLength;
         this.objects = {};
 
         const attacksZ = 100;
@@ -38,7 +50,7 @@ export class World extends THREE.Object3D {
         const segments = 1;
 
         const planeMesh = new THREE.Mesh(
-            new THREE.PlaneGeometry(World.sideLength, World.sideLength, segments, segments),
+            new THREE.PlaneGeometry(this.sideLength, this.sideLength, segments, segments),
             new THREE.ShaderMaterial(terrainShader));
         this.add(planeMesh);
 
@@ -260,7 +272,7 @@ export class World extends THREE.Object3D {
      * @param newSize - The new render size in pixels.
      */
     public onSizeChanged(newSize: number): void {
-        terrainShader.uniforms.tPixelSize.value = World.sideLength / newSize;
+        terrainShader.uniforms.tPixelSize.value = this.sideLength / newSize;
     }
 
     /**
